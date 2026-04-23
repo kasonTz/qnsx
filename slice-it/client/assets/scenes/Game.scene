@@ -1,20 +1,24 @@
 {
+  "__type__": "cc.SceneAsset",
   "_name": "Game",
   "_objFlags": 0,
   "_components": [],
   "data": {
+    "__type__": "cc.SceneData",
     "_name": "Game",
     "_objFlags": 0,
     "_components": [],
     "_children": [
       {
         "__id__": 1,
+        "__type__": "cc.Node",
         "_name": "Canvas",
         "_objFlags": 0,
         "_parent": null,
         "_children": [
           {
             "__id__": 2,
+            "__type__": "cc.Node",
             "_name": "Background",
             "_objFlags": 0,
             "_parent": {
@@ -106,6 +110,7 @@
             "_components": [
               {
                 "__id__": 3,
+                "__type__": "cc.Sprite",
                 "_objFlags": 0,
                 "node": {
                   "__id__": 2
@@ -129,6 +134,7 @@
               },
               {
                 "__id__": 4,
+                "__type__": "cc.UITransform",
                 "_objFlags": 0,
                 "node": {
                   "__id__": 2
@@ -148,6 +154,7 @@
           },
           {
             "__id__": 5,
+            "__type__": "cc.Node",
             "_name": "GameUI",
             "_objFlags": 0,
             "_parent": {
@@ -156,6 +163,7 @@
             "_children": [
               {
                 "__id__": 6,
+                "__type__": "cc.Node",
                 "_name": "ScoreLabel",
                 "_objFlags": 0,
                 "_parent": {
@@ -247,6 +255,7 @@
                 "_components": [
                   {
                     "__id__": 7,
+                    "__type__": "cc.Label",
                     "_objFlags": 0,
                     "node": {
                       "__id__": 6
@@ -297,6 +306,7 @@
                   },
                   {
                     "__id__": 8,
+                    "__type__": "cc.UITransform",
                     "_objFlags": 0,
                     "node": {
                       "__id__": 6
@@ -316,6 +326,7 @@
               },
               {
                 "__id__": 9,
+                "__type__": "cc.Node",
                 "_name": "TimeLabel",
                 "_objFlags": 0,
                 "_parent": {
@@ -407,6 +418,7 @@
                 "_components": [
                   {
                     "__id__": 10,
+                    "__type__": "cc.Label",
                     "_objFlags": 0,
                     "node": {
                       "__id__": 9
@@ -457,6 +469,7 @@
                   },
                   {
                     "__id__": 11,
+                    "__type__": "cc.UITransform",
                     "_objFlags": 0,
                     "node": {
                       "__id__": 9
@@ -476,6 +489,7 @@
               },
               {
                 "__id__": 12,
+                "__type__": "cc.Node",
                 "_name": "ComboLabel",
                 "_objFlags": 0,
                 "_parent": {
@@ -567,6 +581,7 @@
                 "_components": [
                   {
                     "__id__": 13,
+                    "__type__": "cc.Label",
                     "_objFlags": 0,
                     "node": {
                       "__id__": 12
@@ -617,6 +632,7 @@
                   },
                   {
                     "__id__": 14,
+                    "__type__": "cc.UITransform",
                     "_objFlags": 0,
                     "node": {
                       "__id__": 12
@@ -636,6 +652,7 @@
               },
               {
                 "__id__": 15,
+                "__type__": "cc.Node",
                 "_name": "PauseButton",
                 "_objFlags": 0,
                 "_parent": {
@@ -727,6 +744,7 @@
                 "_components": [
                   {
                     "__id__": 16,
+                    "__type__": "cc.Button",
                     "_objFlags": 0,
                     "node": {
                       "__id__": 15
@@ -741,6 +759,7 @@
                   },
                   {
                     "__id__": 17,
+                    "__type__": "cc.Label",
                     "_objFlags": 0,
                     "node": {
                       "__id__": 15
@@ -791,6 +810,7 @@
                   },
                   {
                     "__id__": 18,
+                    "__type__": "cc.UITransform",
                     "_objFlags": 0,
                     "node": {
                       "__id__": 15
@@ -894,6 +914,7 @@
             "_components": [
               {
                 "__id__": 19,
+                "__type__": "cc.UITransform",
                 "_objFlags": 0,
                 "node": {
                   "__id__": 5
@@ -913,6 +934,7 @@
           },
           {
             "__id__": 20,
+            "__type__": "cc.Node",
             "_name": "GameLayer",
             "_objFlags": 0,
             "_parent": {
@@ -1004,6 +1026,7 @@
             "_components": [
               {
                 "__id__": 21,
+                "__type__": "cc.UITransform",
                 "_objFlags": 0,
                 "node": {
                   "__id__": 20
@@ -1107,6 +1130,7 @@
         "_components": [
           {
             "__id__": 22,
+            "__type__": "cc.Canvas",
             "_objFlags": 0,
             "node": {
               "__id__": 1
@@ -1122,6 +1146,7 @@
           },
           {
             "__id__": 23,
+            "__type__": "cc.UITransform",
             "_objFlags": 0,
             "node": {
               "__id__": 1
@@ -1222,6 +1247,7 @@
         1
       ]
     },
+    "_components": [],
     "_persistNode": false
   }
 }
