@@ -1,0 +1,2047 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>02 - 首页与主题管理</title>
+<style>
+  /* ===== Reset & Base ===== */
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  @font-face {
+    font-family: 'CuteChinese';
+    src: local('PingFang SC'), local('Microsoft YaHei'), local('Hiragino Sans GB'), local('Noto Sans CJK SC');
+  }
+
+  body {
+    font-family: 'CuteChinese', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+    background: linear-gradient(135deg, #f0f4ff 0%, #fce4f0 50%, #e8f0fe 100%);
+    min-height: 100vh;
+    padding: 40px 20px;
+    color: #333;
+  }
+
+  /* ===== Page Header ===== */
+  .page-header {
+    text-align: center;
+    margin-bottom: 50px;
+  }
+  .page-header h1 {
+    font-size: 28px;
+    font-weight: 700;
+    background: linear-gradient(135deg, #FF6B35, #FF8F65);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 8px;
+  }
+  .page-header p {
+    font-size: 14px;
+    color: #999;
+    letter-spacing: 1px;
+  }
+
+  /* ===== Phone Grid - 2 per row ===== */
+  .phone-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 812px);
+    gap: 40px;
+    justify-content: center;
+    max-width: 100%;
+    margin: 0 auto;
+  }
+
+  @media (max-width: 1700px) {
+    .phone-grid {
+      grid-template-columns: 812px;
+    }
+  }
+
+  /* ===== Phone Frame ===== */
+  .phone-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .screen-label {
+    font-size: 13px;
+    color: #888;
+    margin-bottom: 12px;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+  }
+  .phone-frame {
+    width: 812px;
+    height: 375px;
+    background: #1a1a2e;
+    border-radius: 40px;
+    padding: 12px;
+    position: relative;
+    box-shadow:
+      0 20px 60px rgba(0,0,0,0.15),
+      0 0 0 2px #2a2a4a,
+      inset 0 0 0 2px #333;
+  }
+
+  /* Dynamic Island - LEFT side, vertically centered */
+  .phone-notch {
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 28px;
+    height: 120px;
+    background: #1a1a2e;
+    border-radius: 14px;
+    z-index: 20;
+  }
+  .phone-notch::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 10px;
+    height: 10px;
+    background: #222;
+    border-radius: 50%;
+    border: 2px solid #333;
+  }
+
+  .phone-screen {
+    width: 100%;
+    height: 100%;
+    border-radius: 32px;
+    overflow: hidden;
+    position: relative;
+    background: linear-gradient(180deg, #E8F4FD 0%, #E8E0F0 100%);
+  }
+  .phone-home-indicator {
+    position: absolute;
+    bottom: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 134px;
+    height: 5px;
+    background: rgba(0,0,0,0.2);
+    border-radius: 3px;
+    z-index: 20;
+  }
+
+  /* ===== Screen Content Common ===== */
+  .screen-content {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* Status bar - left padding to avoid notch */
+  .status-bar {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    padding: 8px 24px 2px 48px;
+    font-size: 11px;
+    font-weight: 600;
+    color: #333;
+    flex-shrink: 0;
+    z-index: 10;
+  }
+  .status-bar .time { font-size: 12px; font-weight: 700; margin-right: auto; }
+  .status-bar .icons { display: flex; gap: 4px; align-items: center; font-size: 10px; }
+
+  /* ===== Screen 1: Home (Game Launcher) ===== */
+  .home-layout {
+    flex: 1;
+    display: flex;
+    padding: 0 20px 0 44px;
+    gap: 20px;
+    overflow: hidden;
+  }
+
+  /* Left area - Current theme */
+  .home-left {
+    width: 200px;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+  .home-theme-icon {
+    width: 72px;
+    height: 72px;
+    border-radius: 20px;
+    background: linear-gradient(135deg, #FFF3CD, #FFE0A3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 36px;
+    box-shadow: 0 6px 20px rgba(255,179,0,0.2);
+    animation: themeIconFloat 3s ease-in-out infinite;
+  }
+  @keyframes themeIconFloat {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-5px); }
+  }
+  .home-theme-name {
+    font-size: 16px;
+    font-weight: 800;
+    color: #333;
+    text-align: center;
+  }
+  .home-theme-switch {
+    font-size: 12px;
+    color: #FF6B35;
+    cursor: pointer;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    transition: opacity 0.2s;
+  }
+  .home-theme-switch:hover { opacity: 0.7; }
+  .home-theme-desc {
+    font-size: 11px;
+    color: #999;
+    text-align: center;
+  }
+
+  /* Center area - Game settings */
+  .home-center {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 14px;
+  }
+  .home-settings-label {
+    font-size: 12px;
+    color: #999;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+  }
+  .mode-cards {
+    display: flex;
+    gap: 10px;
+  }
+  .mode-card {
+    flex: 1;
+    padding: 10px 14px;
+    border-radius: 14px;
+    background: #fff;
+    border: 2px solid #e8e8e8;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    position: relative;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  }
+  .mode-card:hover { transform: translateY(-1px); }
+  .mode-card.selected {
+    border-color: #FF6B35;
+    background: linear-gradient(135deg, #FFF8F5, #FFF0E8);
+    box-shadow: 0 4px 15px rgba(255,107,53,0.15);
+  }
+  .mode-card .mode-icon { font-size: 20px; }
+  .mode-card .mode-name { font-size: 13px; font-weight: 700; color: #333; }
+  .mode-card .mode-badge {
+    position: absolute;
+    top: -6px;
+    right: -4px;
+    font-size: 9px;
+    padding: 2px 8px;
+    border-radius: 8px;
+    font-weight: 700;
+  }
+  .badge-recommend {
+    background: linear-gradient(135deg, #FF6B35, #FF9F6B);
+    color: #fff;
+  }
+  .badge-new {
+    background: linear-gradient(135deg, #7BC8FF, #BAE1FF);
+    color: #fff;
+  }
+
+  .duration-cards {
+    display: flex;
+    gap: 8px;
+  }
+  .duration-card {
+    flex: 1;
+    padding: 8px 10px;
+    border-radius: 12px;
+    background: #fff;
+    border: 2px solid #e8e8e8;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  }
+  .duration-card:hover { transform: translateY(-1px); }
+  .duration-card.selected-green {
+    border-color: #4CAF50;
+    background: linear-gradient(135deg, #F0FFF0, #E8FFE8);
+  }
+  .duration-card.selected-orange {
+    border-color: #FF6B35;
+    background: linear-gradient(135deg, #FFF8F5, #FFF0E8);
+    box-shadow: 0 4px 15px rgba(255,107,53,0.15);
+  }
+  .duration-card.selected-red {
+    border-color: #FF4444;
+    background: linear-gradient(135deg, #FFF5F5, #FFE8E8);
+  }
+  .duration-card .dur-icon { font-size: 16px; }
+  .duration-card .dur-name { font-size: 11px; font-weight: 700; color: #333; margin-top: 2px; }
+  .duration-card .dur-time { font-size: 10px; color: #999; font-weight: 600; }
+
+  /* Right area - Start button */
+  .home-right {
+    width: 180px;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+  }
+  .btn-start {
+    width: 140px;
+    height: 140px;
+    border-radius: 50%;
+    border: none;
+    background: linear-gradient(135deg, #FF6B35, #FF9F6B);
+    color: #fff;
+    font-size: 20px;
+    font-weight: 800;
+    font-family: inherit;
+    cursor: pointer;
+    box-shadow: 0 8px 30px rgba(255,107,53,0.4);
+    transition: all 0.3s;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    animation: startPulse 2s ease-in-out infinite;
+    position: relative;
+    overflow: hidden;
+  }
+  .btn-start::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255,255,255,0.2) 0%, transparent 60%);
+    animation: startShine 3s linear infinite;
+  }
+  @keyframes startPulse {
+    0%, 100% { box-shadow: 0 8px 30px rgba(255,107,53,0.4); }
+    50% { box-shadow: 0 8px 40px rgba(255,107,53,0.6); }
+  }
+  @keyframes startShine {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+  .btn-start:hover {
+    transform: scale(1.05);
+    box-shadow: 0 12px 40px rgba(255,107,53,0.5);
+  }
+  .btn-start:active { transform: scale(0.98); }
+  .btn-start .start-icon { font-size: 28px; position: relative; z-index: 1; }
+  .btn-start .start-text { font-size: 16px; position: relative; z-index: 1; }
+  .home-highscore {
+    font-size: 11px;
+    color: #999;
+    text-align: center;
+  }
+  .home-highscore span {
+    color: #FF6B35;
+    font-weight: 700;
+  }
+
+  /* Settings icon top right */
+  .home-settings-icon {
+    position: absolute;
+    top: 36px;
+    right: 20px;
+    font-size: 18px;
+    cursor: pointer;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255,255,255,0.6);
+    border-radius: 50%;
+    z-index: 10;
+    transition: transform 0.2s;
+  }
+  .home-settings-icon:hover { transform: rotate(45deg); }
+
+  /* ===== Screen 2: Theme Selection (REDESIGN) ===== */
+  .ts-topbar {
+    display: flex;
+    align-items: center;
+    padding: 2px 16px 2px 44px;
+    flex-shrink: 0;
+  }
+  .ts-back {
+    font-size: 18px;
+    color: #666;
+    cursor: pointer;
+    padding: 4px;
+  }
+  .ts-title {
+    flex: 1;
+    text-align: center;
+    font-size: 15px;
+    font-weight: 700;
+    color: #333;
+    margin-right: 28px;
+  }
+
+  /* Two-section layout */
+  .ts-section {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  .ts-section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 4px 20px 4px 44px;
+    flex-shrink: 0;
+  }
+  .ts-section-label {
+    font-size: 13px;
+    font-weight: 700;
+    color: #555;
+  }
+  .ts-section-hint {
+    font-size: 11px;
+    color: #bbb;
+  }
+  .ts-section-link {
+    font-size: 11px;
+    color: #FF6B35;
+    cursor: pointer;
+    font-weight: 600;
+  }
+  .ts-section-link:hover { opacity: 0.7; }
+
+  .ts-cards-scroll {
+    display: flex;
+    gap: 10px;
+    padding: 4px 20px 4px 44px;
+    overflow-x: auto;
+    flex-shrink: 0;
+    scroll-snap-type: x mandatory;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .ts-cards-scroll::-webkit-scrollbar { display: none; }
+
+  .ts-card {
+    min-width: 130px;
+    max-width: 130px;
+    height: 120px;
+    border-radius: 14px;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    scroll-snap-align: start;
+    flex-shrink: 0;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.06);
+    transition: transform 0.2s;
+    cursor: pointer;
+  }
+  .ts-card:hover { transform: translateY(-3px); }
+  .ts-card .ts-icon { font-size: 24px; margin-bottom: 4px; }
+  .ts-card .ts-name { font-size: 12px; font-weight: 700; color: #333; margin-bottom: 2px; }
+  .ts-card .ts-count { font-size: 10px; color: #999; margin-top: auto; }
+  .ts-card .ts-tag {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    font-size: 9px;
+    padding: 2px 6px;
+    border-radius: 8px;
+    font-weight: 600;
+  }
+
+  .ts-c1 { background: linear-gradient(135deg, #FFF3CD, #FFE0A3); }
+  .ts-c1 .ts-tag { background: #FF6B35; color: #fff; }
+  .ts-c2 { background: linear-gradient(135deg, #D4EDDA, #BAFFC9); }
+  .ts-c3 { background: linear-gradient(135deg, #E8DAEF, #D4BAFF); }
+  .ts-c4 { background: linear-gradient(135deg, #FFB3E6, #BAE1FF); }
+  .ts-c5 { background: linear-gradient(135deg, #FFD6E8, #FFB3D1); }
+
+  /* Custom theme cards for bottom section */
+  .ts-custom-card {
+    min-width: 130px;
+    max-width: 130px;
+    height: 120px;
+    border-radius: 14px;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    scroll-snap-align: start;
+    flex-shrink: 0;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.06);
+    transition: transform 0.2s;
+    cursor: pointer;
+  }
+  .ts-custom-card:hover { transform: translateY(-3px); }
+  .ts-custom-card .ts-icon { font-size: 24px; margin-bottom: 4px; }
+  .ts-custom-card .ts-name { font-size: 12px; font-weight: 700; color: #333; margin-bottom: 2px; }
+  .ts-custom-card .ts-summary { font-size: 10px; color: #999; margin-top: auto; }
+
+  .ts-cc1 { background: linear-gradient(135deg, #FFD6E8, #FFB3D1); }
+  .ts-cc2 { background: linear-gradient(135deg, #BAE1FF, #7BC8FF); }
+  .ts-cc3 { background: linear-gradient(135deg, #D4EDDA, #BAFFC9); }
+
+  .ts-divider {
+    height: 1px;
+    background: rgba(0,0,0,0.06);
+    margin: 0 20px 0 44px;
+    flex-shrink: 0;
+  }
+
+  /* ===== Screen 3 & 4: Theme Detail ===== */
+  .detail-topbar {
+    display: flex;
+    align-items: center;
+    padding: 2px 16px 2px 44px;
+    flex-shrink: 0;
+    gap: 8px;
+  }
+  .detail-back {
+    font-size: 18px;
+    color: #666;
+    cursor: pointer;
+    padding: 4px;
+  }
+  .detail-title {
+    flex: 1;
+    font-size: 15px;
+    font-weight: 700;
+    color: #333;
+  }
+  .detail-edit-btn {
+    font-size: 16px;
+    cursor: pointer;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255,255,255,0.6);
+    border-radius: 50%;
+    transition: transform 0.2s;
+  }
+  .detail-edit-btn:hover { transform: scale(1.1); }
+
+  .detail-body {
+    flex: 1;
+    display: flex;
+    padding: 6px 20px 6px 44px;
+    gap: 16px;
+    overflow: hidden;
+  }
+
+  /* Left half: term lists */
+  .detail-terms {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    overflow-y: auto;
+  }
+  .detail-term-section-title {
+    font-size: 12px;
+    font-weight: 700;
+    color: #666;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .detail-term-section-title .dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+  }
+  .detail-term-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .detail-term-tag {
+    padding: 5px 14px;
+    border-radius: 16px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #fff;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  }
+  .tag-macaron1 { background: linear-gradient(135deg, #FFB3BA, #FF8A95); }
+  .tag-macaron2 { background: linear-gradient(135deg, #BAFFC9, #7DE89A); }
+  .tag-macaron3 { background: linear-gradient(135deg, #BAE1FF, #7BC8FF); }
+  .tag-macaron4 { background: linear-gradient(135deg, #FFFFBA, #FFE866); color: #666; }
+  .tag-macaron5 { background: linear-gradient(135deg, #D4BAFF, #B89AFF); }
+  .tag-macaron6 { background: linear-gradient(135deg, #FFB3E6, #FF85CC); }
+  .tag-macaron7 { background: linear-gradient(135deg, #FFD6E8, #FFB3D1); }
+  .tag-macaron8 { background: linear-gradient(135deg, #C9FFE5, #7DE89A); }
+  .tag-macaron9 { background: linear-gradient(135deg, #E8DAEF, #D4BAFF); }
+  .tag-macaron10 { background: linear-gradient(135deg, #FFF3CD, #FFE0A3); color: #666; }
+  .tag-macaron11 { background: linear-gradient(135deg, #FFDAB9, #FFB07C); }
+  .tag-macaron12 { background: linear-gradient(135deg, #B5EAD7, #7EC8A0); }
+  .tag-warning1 { background: linear-gradient(135deg, #FF6B35, #FF4444); }
+  .tag-warning2 { background: linear-gradient(135deg, #CC0000, #990000); }
+
+  /* Right half: container preview */
+  .detail-preview {
+    width: 200px;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+  .detail-preview-label {
+    font-size: 11px;
+    color: #999;
+    font-weight: 600;
+  }
+  .detail-container-preview {
+    width: 140px;
+    height: 140px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #FFF3CD, #FFE0A3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 8px 30px rgba(255,179,0,0.2);
+    position: relative;
+    animation: containerFloat 3s ease-in-out infinite;
+  }
+  @keyframes containerFloat {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-5px); }
+  }
+  .detail-container-preview .container-text {
+    font-size: 22px;
+    font-weight: 800;
+    color: #333;
+  }
+  /* Cloud bubble shape */
+  .detail-container-preview::before {
+    content: '';
+    position: absolute;
+    top: -8px;
+    left: 20px;
+    width: 40px;
+    height: 30px;
+    background: linear-gradient(135deg, #FFF3CD, #FFE0A3);
+    border-radius: 50%;
+  }
+  .detail-container-preview::after {
+    content: '';
+    position: absolute;
+    top: -4px;
+    right: 20px;
+    width: 30px;
+    height: 24px;
+    background: linear-gradient(135deg, #FFF3CD, #FFE0A3);
+    border-radius: 50%;
+  }
+
+  .detail-bottom {
+    padding: 6px 20px 28px 44px;
+    flex-shrink: 0;
+    display: flex;
+    gap: 10px;
+  }
+  .btn-select-theme {
+    flex: 1;
+    height: 38px;
+    border: none;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #FF6B35, #FF9F6B);
+    color: #fff;
+    font-size: 14px;
+    font-weight: 700;
+    font-family: inherit;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(255,107,53,0.3);
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .btn-select-theme:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(255,107,53,0.4);
+  }
+  .btn-edit-theme {
+    height: 38px;
+    padding: 0 20px;
+    border: 2px solid #ddd;
+    border-radius: 12px;
+    background: #fff;
+    color: #999;
+    font-size: 13px;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+  .btn-edit-theme:hover { border-color: #999; color: #666; }
+
+  /* ===== Screens 5-9: Custom Theme Steps ===== */
+  .step-topbar {
+    display: flex;
+    align-items: center;
+    padding: 2px 16px 2px 44px;
+    flex-shrink: 0;
+  }
+  .step-back {
+    font-size: 18px;
+    color: #666;
+    cursor: pointer;
+    padding: 4px;
+  }
+  .step-title {
+    flex: 1;
+    text-align: center;
+    font-size: 15px;
+    font-weight: 700;
+    color: #333;
+    margin-right: 28px;
+  }
+  .step-indicator {
+    font-size: 11px;
+    color: #999;
+    text-align: center;
+    padding: 2px 0;
+    flex-shrink: 0;
+  }
+  .progress-bar {
+    margin: 4px 20px 6px 44px;
+    height: 4px;
+    background: rgba(0,0,0,0.06);
+    border-radius: 2px;
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+  .progress-fill {
+    height: 100%;
+    border-radius: 2px;
+    background: linear-gradient(90deg, #FF6B35, #FF9F6B);
+    transition: width 0.3s;
+  }
+  .step-body {
+    flex: 1;
+    padding: 6px 20px 6px 44px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+  }
+  .step-helper {
+    font-size: 12px;
+    color: #999;
+    margin-bottom: 8px;
+    line-height: 1.4;
+  }
+  .input-row {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+  .text-input {
+    flex: 1;
+    height: 38px;
+    border: 2px solid #e8e8e8;
+    border-radius: 12px;
+    padding: 0 14px;
+    font-size: 13px;
+    font-family: inherit;
+    color: #333;
+    background: #fff;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .text-input:focus { border-color: #FF6B35; }
+  .text-input::placeholder { color: #ccc; }
+  .add-btn {
+    width: 38px;
+    height: 38px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #FF6B35, #FF9F6B);
+    color: #fff;
+    font-size: 20px;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .term-list {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    flex: 1;
+  }
+  .term-item {
+    display: flex;
+    align-items: center;
+    padding: 10px 12px;
+    border-radius: 12px;
+    background: #fff;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    gap: 8px;
+  }
+  .term-color-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .term-text {
+    flex: 1;
+    font-size: 14px;
+    font-weight: 600;
+    color: #333;
+  }
+  .term-status {
+    font-size: 11px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 3px;
+  }
+  .term-status.approved { color: #4CAF50; }
+  .term-status.reviewing { color: #FF9800; }
+
+  .term-counter {
+    text-align: right;
+    font-size: 12px;
+    color: #999;
+    margin-top: 6px;
+    flex-shrink: 0;
+  }
+
+  .suggestions {
+    margin-top: 10px;
+  }
+  .suggestions-label {
+    font-size: 11px;
+    color: #bbb;
+    margin-bottom: 6px;
+  }
+  .suggestion-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .suggestion-tag {
+    padding: 4px 12px;
+    background: rgba(255,255,255,0.7);
+    border-radius: 16px;
+    font-size: 12px;
+    color: #888;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .suggestion-tag:hover {
+    background: #FF6B35;
+    color: #fff;
+  }
+
+  .default-hint {
+    font-size: 11px;
+    color: #bbb;
+    margin-top: 4px;
+    text-align: center;
+  }
+
+  .step-bottom {
+    padding: 6px 20px 28px 44px;
+    flex-shrink: 0;
+  }
+  .btn-primary {
+    width: 100%;
+    height: 38px;
+    border: none;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #FF6B35, #FF9F6B);
+    color: #fff;
+    font-size: 14px;
+    font-weight: 700;
+    font-family: inherit;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(255,107,53,0.3);
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(255,107,53,0.4);
+  }
+  .btn-primary:active { transform: translateY(0); }
+
+  /* ===== Penalty Items ===== */
+  .penalty-item {
+    border-left: 3px solid #FF6B35;
+  }
+  .penalty-item .term-text { color: #CC0000; }
+  .penalty-item .term-status { color: #FF6B35; }
+
+  /* ===== Preview ===== */
+  .preview-body {
+    flex: 1;
+    padding: 6px 20px 6px 44px;
+    overflow-y: auto;
+  }
+  .preview-section-title {
+    font-size: 12px;
+    font-weight: 700;
+    color: #666;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .preview-section-title .dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+  }
+  .preview-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+  .preview-bubble {
+    padding: 8px 18px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 700;
+    color: #fff;
+    position: relative;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    animation: floatBubble 3s ease-in-out infinite;
+  }
+  .preview-bubble:nth-child(2) { animation-delay: 0.5s; }
+  .preview-bubble:nth-child(3) { animation-delay: 1s; }
+  .preview-bubble:nth-child(4) { animation-delay: 1.5s; }
+  .preview-bubble:nth-child(5) { animation-delay: 0.3s; }
+  .preview-bubble:nth-child(6) { animation-delay: 0.8s; }
+
+  @keyframes floatBubble {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-4px); }
+  }
+
+  .pb1 { background: linear-gradient(135deg, #FFB3BA, #FF8A95); }
+  .pb2 { background: linear-gradient(135deg, #BAFFC9, #7DE89A); }
+  .pb3 { background: linear-gradient(135deg, #BAE1FF, #7BC8FF); }
+  .pb4 { background: linear-gradient(135deg, #FFFFBA, #FFE866); color: #666; }
+  .pb5 { background: linear-gradient(135deg, #D4BAFF, #B89AFF); }
+  .pb6 { background: linear-gradient(135deg, #FFB3E6, #FF85CC); }
+
+  .penalty-bubble {
+    padding: 8px 18px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 700;
+    color: #fff;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    animation: floatBubble 3s ease-in-out infinite;
+    border: 2px dashed rgba(255,255,255,0.4);
+  }
+  .penalty-bubble:nth-child(2) { animation-delay: 0.7s; }
+  .penalty-bubble:nth-child(3) { animation-delay: 1.2s; }
+
+  .pbw1 { background: linear-gradient(135deg, #FF6B35, #FF4444); }
+  .pbw2 { background: linear-gradient(135deg, #CC0000, #990000); }
+
+  /* ===== Success Screen ===== */
+  .success-body {
+    flex: 1;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    padding: 16px 30px 16px 50px;
+    gap: 24px;
+    position: relative;
+    overflow: hidden;
+  }
+  .confetti-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    overflow: hidden;
+  }
+  .confetti {
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    border-radius: 2px;
+    animation: confettiFall linear infinite;
+  }
+  @keyframes confettiFall {
+    0% { transform: translateY(-20px) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(400px) rotate(720deg); opacity: 0; }
+  }
+
+  .success-icon {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #4CAF50, #66BB6A);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 34px;
+    color: #fff;
+    box-shadow: 0 8px 30px rgba(76,175,80,0.3);
+    animation: successPop 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    z-index: 2;
+    flex-shrink: 0;
+  }
+  @keyframes successPop {
+    0% { transform: scale(0); }
+    100% { transform: scale(1); }
+  }
+  .success-text-group {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    z-index: 2;
+    flex: 1;
+  }
+  .success-title {
+    font-size: 20px;
+    font-weight: 800;
+    color: #333;
+    z-index: 2;
+  }
+  .success-theme-name {
+    font-size: 15px;
+    color: #FF6B35;
+    font-weight: 600;
+    z-index: 2;
+  }
+  .success-stats {
+    font-size: 13px;
+    color: #999;
+    z-index: 2;
+  }
+  .success-buttons {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+    z-index: 2;
+    flex-shrink: 0;
+  }
+  .btn-primary-sm {
+    height: 38px;
+    padding: 0 20px;
+    border: none;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #FF6B35, #FF9F6B);
+    color: #fff;
+    font-size: 13px;
+    font-weight: 700;
+    font-family: inherit;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(255,107,53,0.3);
+    transition: transform 0.2s, box-shadow 0.2s;
+    white-space: nowrap;
+  }
+  .btn-primary-sm:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(255,107,53,0.4);
+  }
+  .btn-outline {
+    height: 38px;
+    padding: 0 20px;
+    border: 2px solid #ddd;
+    border-radius: 12px;
+    background: #fff;
+    color: #999;
+    font-size: 13px;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+  .btn-outline:hover { border-color: #999; color: #666; }
+
+  /* ===== Screen 10: Theme Management (REDESIGN) ===== */
+  .manage-topbar {
+    display: flex;
+    align-items: center;
+    padding: 2px 16px 2px 44px;
+    flex-shrink: 0;
+  }
+  .manage-back {
+    font-size: 18px;
+    color: #666;
+    cursor: pointer;
+    padding: 4px;
+  }
+  .manage-title {
+    flex: 1;
+    text-align: center;
+    font-size: 15px;
+    font-weight: 700;
+    color: #333;
+    margin-right: 28px;
+  }
+  .manage-create-btn {
+    position: absolute;
+    top: 36px;
+    right: 16px;
+    font-size: 13px;
+    color: #FF6B35;
+    font-weight: 700;
+    cursor: pointer;
+    padding: 4px 12px;
+    background: rgba(255,107,53,0.08);
+    border-radius: 10px;
+    transition: all 0.2s;
+    z-index: 10;
+  }
+  .manage-create-btn:hover {
+    background: rgba(255,107,53,0.15);
+  }
+
+  .manage-body {
+    flex: 1;
+    padding: 6px 20px 6px 44px;
+    overflow-y: auto;
+  }
+  .theme-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+  .theme-list-item {
+    display: flex;
+    align-items: center;
+    padding: 10px 14px;
+    background: #fff;
+    border-radius: 14px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    gap: 12px;
+    border: 1px solid rgba(0,0,0,0.04);
+    transition: all 0.2s;
+  }
+  .theme-list-item:hover {
+    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+    border-color: rgba(255,107,53,0.15);
+  }
+  .theme-list-icon {
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+  .theme-list-info { flex: 1; }
+  .theme-list-name {
+    font-size: 14px;
+    font-weight: 700;
+    color: #333;
+    margin-bottom: 2px;
+  }
+  .theme-list-meta {
+    font-size: 11px;
+    color: #999;
+  }
+  .theme-list-date {
+    font-size: 11px;
+    color: #bbb;
+    flex-shrink: 0;
+    margin-right: 8px;
+  }
+  .theme-list-actions {
+    display: flex;
+    gap: 12px;
+    font-size: 16px;
+    color: #ccc;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+  .theme-list-actions span:hover { color: #FF6B35; }
+
+  /* ===== Spinner ===== */
+  .spinner {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border: 2px solid #FF9800;
+    border-top-color: transparent;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+
+  /* ===== Floating decorative elements ===== */
+  .float-decor {
+    position: absolute;
+    border-radius: 50%;
+    opacity: 0.15;
+    pointer-events: none;
+  }
+  .fd1 {
+    width: 60px; height: 60px;
+    background: #FFB3BA;
+    top: 20px; right: -10px;
+    animation: floatDecor 6s ease-in-out infinite;
+  }
+  .fd2 {
+    width: 50px; height: 50px;
+    background: #BAE1FF;
+    bottom: 60px; left: -10px;
+    animation: floatDecor 8s ease-in-out infinite reverse;
+  }
+  .fd3 {
+    width: 35px; height: 35px;
+    background: #BAFFC9;
+    top: 100px; right: 20px;
+    animation: floatDecor 5s ease-in-out infinite;
+  }
+  @keyframes floatDecor {
+    0%, 100% { transform: translateY(0) scale(1); }
+    50% { transform: translateY(-10px) scale(1.05); }
+  }
+
+  /* ===== Stars animation for success screen ===== */
+  .star {
+    position: absolute;
+    font-size: 14px;
+    animation: starFloat 3s ease-in-out infinite;
+    pointer-events: none;
+    z-index: 1;
+  }
+  @keyframes starFloat {
+    0%, 100% { transform: translateY(0) rotate(0deg); opacity: 0.6; }
+    50% { transform: translateY(-12px) rotate(180deg); opacity: 1; }
+  }
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <h1>02 - 首页与主题管理</h1>
+  <p>切你所想 Slice It - Prototype Design</p>
+</div>
+
+<div class="phone-grid">
+
+  <!-- ==================== Screen 1: Home (Game Launcher) ==================== -->
+  <div class="phone-wrapper">
+    <div class="screen-label">Screen 1 - 首页（游戏入口）</div>
+    <div class="phone-frame">
+      <div class="phone-notch"></div>
+      <div class="phone-screen">
+        <div class="screen-content">
+          <div class="status-bar">
+            <span class="time">9:41</span>
+            <span class="icons">
+              <svg width="16" height="12" viewBox="0 0 16 12"><rect x="0" y="5" width="3" height="7" rx="1" fill="#333"/><rect x="4.5" y="3" width="3" height="9" rx="1" fill="#333"/><rect x="9" y="1" width="3" height="11" rx="1" fill="#333"/><rect x="13.5" y="0" width="3" height="12" rx="1" fill="#333" opacity="0.3"/></svg>
+              <svg width="16" height="12" viewBox="0 0 16 12"><path d="M8 2C5.5 2 3.3 3 1.5 4.5L0 3C2.2 1.2 5 0 8 0s5.8 1.2 8 3l-1.5 1.5C12.7 3 10.5 2 8 2z" fill="#333"/><path d="M8 5.5c-1.7 0-3.2.7-4.3 1.8L2.2 5.8C3.7 4.3 5.7 3.5 8 3.5s4.3.8 5.8 2.3l-1.5 1.5C11.2 6.2 9.7 5.5 8 5.5z" fill="#333"/><circle cx="8" cy="10" r="2" fill="#333"/></svg>
+              <svg width="25" height="12" viewBox="0 0 25 12"><rect x="0" y="1" width="21" height="10" rx="2" stroke="#333" stroke-width="1" fill="none"/><rect x="1.5" y="2.5" width="14" height="7" rx="1" fill="#4CAF50"/><rect x="22" y="4" width="2" height="4" rx="1" fill="#333"/></svg>
+            </span>
+          </div>
+
+          <div class="home-settings-icon">&#9881;</div>
+
+          <div class="home-layout">
+            <!-- Left: Current theme -->
+            <div class="home-left">
+              <div class="home-theme-icon">&#128188;</div>
+              <div class="home-theme-name">打工人发泄包</div>
+              <div class="home-theme-switch">切换主题 &#8250;</div>
+              <div class="home-theme-desc">切掉工作中的烦恼</div>
+            </div>
+
+            <!-- Center: Game settings -->
+            <div class="home-center">
+              <div class="home-settings-label">&#127918; 游戏模式</div>
+              <div class="mode-cards">
+                <div class="mode-card selected">
+                  <div class="mode-badge badge-recommend">推荐</div>
+                  <div class="mode-icon">&#128070;</div>
+                  <div class="mode-name">滑动切割</div>
+                </div>
+                <div class="mode-card">
+                  <div class="mode-badge badge-new">新体验</div>
+                  <div class="mode-icon">&#9995;</div>
+                  <div class="mode-name">手势切割</div>
+                </div>
+              </div>
+
+              <div class="home-settings-label">&#9201; 游戏时长</div>
+              <div class="duration-cards">
+                <div class="duration-card selected-green">
+                  <div class="dur-icon">&#9889;</div>
+                  <div class="dur-name">小试牛刀</div>
+                  <div class="dur-time">60秒</div>
+                </div>
+                <div class="duration-card selected-orange">
+                  <div class="dur-icon">&#128293;</div>
+                  <div class="dur-name">渐入佳境</div>
+                  <div class="dur-time">120秒</div>
+                </div>
+                <div class="duration-card selected-red">
+                  <div class="dur-icon">&#128170;</div>
+                  <div class="dur-name">酣畅淋漓</div>
+                  <div class="dur-time">180秒</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Right: Start + info -->
+            <div class="home-right">
+              <button class="btn-start">
+                <div class="start-icon">&#127918;</div>
+                <div class="start-text">开始游戏</div>
+              </button>
+              <div class="home-highscore">&#127942; 历史最高分：<span>280分</span></div>
+            </div>
+          </div>
+
+          <div class="float-decor fd1"></div>
+          <div class="float-decor fd2"></div>
+        </div>
+      </div>
+      <div class="phone-home-indicator"></div>
+    </div>
+  </div>
+
+  <!-- ==================== Screen 2: Theme Selection (REDESIGN) ==================== -->
+  <div class="phone-wrapper">
+    <div class="screen-label">Screen 2 - 主题选择页</div>
+    <div class="phone-frame">
+      <div class="phone-notch"></div>
+      <div class="phone-screen">
+        <div class="screen-content">
+          <div class="status-bar">
+            <span class="time">9:41</span>
+            <span class="icons">
+              <svg width="16" height="12" viewBox="0 0 16 12"><rect x="0" y="5" width="3" height="7" rx="1" fill="#333"/><rect x="4.5" y="3" width="3" height="9" rx="1" fill="#333"/><rect x="9" y="1" width="3" height="11" rx="1" fill="#333"/><rect x="13.5" y="0" width="3" height="12" rx="1" fill="#333" opacity="0.3"/></svg>
+              <svg width="16" height="12" viewBox="0 0 16 12"><path d="M8 2C5.5 2 3.3 3 1.5 4.5L0 3C2.2 1.2 5 0 8 0s5.8 1.2 8 3l-1.5 1.5C12.7 3 10.5 2 8 2z" fill="#333"/><path d="M8 5.5c-1.7 0-3.2.7-4.3 1.8L2.2 5.8C3.7 4.3 5.7 3.5 8 3.5s4.3.8 5.8 2.3l-1.5 1.5C11.2 6.2 9.7 5.5 8 5.5z" fill="#333"/><circle cx="8" cy="10" r="2" fill="#333"/></svg>
+              <svg width="25" height="12" viewBox="0 0 25 12"><rect x="0" y="1" width="21" height="10" rx="2" stroke="#333" stroke-width="1" fill="none"/><rect x="1.5" y="2.5" width="14" height="7" rx="1" fill="#4CAF50"/><rect x="22" y="4" width="2" height="4" rx="1" fill="#333"/></svg>
+            </span>
+          </div>
+
+          <div class="ts-topbar">
+            <div class="ts-back">&#8592;</div>
+            <div class="ts-title">选择主题</div>
+          </div>
+
+          <!-- Top section: Preset themes -->
+          <div class="ts-section">
+            <div class="ts-section-header">
+              <div class="ts-section-label">&#128230; 预设主题</div>
+              <div class="ts-section-hint">&#8594; 滑动</div>
+            </div>
+            <div class="ts-cards-scroll">
+              <div class="ts-card ts-c1">
+                <div class="ts-tag">最热</div>
+                <div class="ts-icon">&#128188;</div>
+                <div class="ts-name">打工人发泄包</div>
+                <div class="ts-count">12个词条</div>
+              </div>
+              <div class="ts-card ts-c2">
+                <div class="ts-icon">&#128218;</div>
+                <div class="ts-name">学生解压包</div>
+                <div class="ts-count">10个词条</div>
+              </div>
+              <div class="ts-card ts-c3">
+                <div class="ts-icon">&#127769;</div>
+                <div class="ts-name">生活烦恼包</div>
+                <div class="ts-count">8个词条</div>
+              </div>
+              <div class="ts-card ts-c4">
+                <div class="ts-icon">&#127752;</div>
+                <div class="ts-name">emo终结者</div>
+                <div class="ts-count">9个词条</div>
+              </div>
+              <div class="ts-card ts-c5">
+                <div class="ts-icon">&#128149;</div>
+                <div class="ts-name">恋爱吐槽包</div>
+                <div class="ts-count">7个词条</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="ts-divider"></div>
+
+          <!-- Bottom section: My themes -->
+          <div class="ts-section">
+            <div class="ts-section-header">
+              <div class="ts-section-label">&#128203; 我的主题（3）</div>
+              <div class="ts-section-link">查看全部 &#8250;</div>
+            </div>
+            <div class="ts-cards-scroll">
+              <div class="ts-custom-card ts-cc1">
+                <div class="ts-icon">&#128221;</div>
+                <div class="ts-name">考研加油</div>
+                <div class="ts-summary">加分3 扣分2</div>
+              </div>
+              <div class="ts-custom-card ts-cc2">
+                <div class="ts-icon">&#128221;</div>
+                <div class="ts-name">减肥进行时</div>
+                <div class="ts-summary">加分5 扣分1</div>
+              </div>
+              <div class="ts-custom-card ts-cc3">
+                <div class="ts-icon">&#128221;</div>
+                <div class="ts-name">打工人日记</div>
+                <div class="ts-summary">加分4 扣分3</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="float-decor fd3"></div>
+        </div>
+      </div>
+      <div class="phone-home-indicator"></div>
+    </div>
+  </div>
+
+  <!-- ==================== Screen 3: Preset Theme Detail (READ ONLY) ==================== -->
+  <div class="phone-wrapper">
+    <div class="screen-label">Screen 3 - 预设主题详情页（只读）</div>
+    <div class="phone-frame">
+      <div class="phone-notch"></div>
+      <div class="phone-screen">
+        <div class="screen-content">
+          <div class="status-bar">
+            <span class="time">9:41</span>
+            <span class="icons">
+              <svg width="16" height="12" viewBox="0 0 16 12"><rect x="0" y="5" width="3" height="7" rx="1" fill="#333"/><rect x="4.5" y="3" width="3" height="9" rx="1" fill="#333"/><rect x="9" y="1" width="3" height="11" rx="1" fill="#333"/><rect x="13.5" y="0" width="3" height="12" rx="1" fill="#333" opacity="0.3"/></svg>
+              <svg width="16" height="12" viewBox="0 0 16 12"><path d="M8 2C5.5 2 3.3 3 1.5 4.5L0 3C2.2 1.2 5 0 8 0s5.8 1.2 8 3l-1.5 1.5C12.7 3 10.5 2 8 2z" fill="#333"/><path d="M8 5.5c-1.7 0-3.2.7-4.3 1.8L2.2 5.8C3.7 4.3 5.7 3.5 8 3.5s4.3.8 5.8 2.3l-1.5 1.5C11.2 6.2 9.7 5.5 8 5.5z" fill="#333"/><circle cx="8" cy="10" r="2" fill="#333"/></svg>
+              <svg width="25" height="12" viewBox="0 0 25 12"><rect x="0" y="1" width="21" height="10" rx="2" stroke="#333" stroke-width="1" fill="none"/><rect x="1.5" y="2.5" width="14" height="7" rx="1" fill="#4CAF50"/><rect x="22" y="4" width="2" height="4" rx="1" fill="#333"/></svg>
+            </span>
+          </div>
+
+          <div class="detail-topbar">
+            <div class="detail-back">&#8592;</div>
+            <div class="detail-title">&#128188; 打工人发泄包</div>
+          </div>
+
+          <div class="detail-body">
+            <!-- Left half: Term lists -->
+            <div class="detail-terms">
+              <div class="detail-term-section-title">
+                <div class="dot" style="background: #4CAF50;"></div>
+                加分物（切掉得分）
+              </div>
+              <div class="detail-term-tags">
+                <div class="detail-term-tag tag-macaron1">加班</div>
+                <div class="detail-term-tag tag-macaron2">开会</div>
+                <div class="detail-term-tag tag-macaron3">周一</div>
+                <div class="detail-term-tag tag-macaron4">PPT</div>
+                <div class="detail-term-tag tag-macaron5">DDL</div>
+                <div class="detail-term-tag tag-macaron6">周报</div>
+                <div class="detail-term-tag tag-macaron7">OKR</div>
+                <div class="detail-term-tag tag-macaron8">996</div>
+                <div class="detail-term-tag tag-macaron9">通勤</div>
+                <div class="detail-term-tag tag-macaron10">加班费</div>
+                <div class="detail-term-tag tag-macaron11">年终奖</div>
+                <div class="detail-term-tag tag-macaron12">绩效</div>
+              </div>
+
+              <div class="detail-term-section-title" style="margin-top: 10px;">
+                <div class="dot" style="background: #FF4444;"></div>
+                扣分物（切到扣分）
+              </div>
+              <div class="detail-term-tags">
+                <div class="detail-term-tag tag-warning1">&#9888; 奖金</div>
+                <div class="detail-term-tag tag-warning2">&#9888; 放假</div>
+              </div>
+            </div>
+
+            <!-- Right half: Container preview -->
+            <div class="detail-preview">
+              <div class="detail-preview-label">容器样式预览</div>
+              <div class="detail-container-preview">
+                <div class="container-text">加班</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="detail-bottom">
+            <button class="btn-select-theme">&#9989; 选择此主题</button>
+          </div>
+
+          <div class="float-decor fd1"></div>
+        </div>
+      </div>
+      <div class="phone-home-indicator"></div>
+    </div>
+  </div>
+
+  <!-- ==================== Screen 4: Custom Theme Detail (EDITABLE) ==================== -->
+  <div class="phone-wrapper">
+    <div class="screen-label">Screen 4 - 自定义主题详情页（可编辑）</div>
+    <div class="phone-frame">
+      <div class="phone-notch"></div>
+      <div class="phone-screen">
+        <div class="screen-content">
+          <div class="status-bar">
+            <span class="time">9:41</span>
+            <span class="icons">
+              <svg width="16" height="12" viewBox="0 0 16 12"><rect x="0" y="5" width="3" height="7" rx="1" fill="#333"/><rect x="4.5" y="3" width="3" height="9" rx="1" fill="#333"/><rect x="9" y="1" width="3" height="11" rx="1" fill="#333"/><rect x="13.5" y="0" width="3" height="12" rx="1" fill="#333" opacity="0.3"/></svg>
+              <svg width="16" height="12" viewBox="0 0 16 12"><path d="M8 2C5.5 2 3.3 3 1.5 4.5L0 3C2.2 1.2 5 0 8 0s5.8 1.2 8 3l-1.5 1.5C12.7 3 10.5 2 8 2z" fill="#333"/><path d="M8 5.5c-1.7 0-3.2.7-4.3 1.8L2.2 5.8C3.7 4.3 5.7 3.5 8 3.5s4.3.8 5.8 2.3l-1.5 1.5C11.2 6.2 9.7 5.5 8 5.5z" fill="#333"/><circle cx="8" cy="10" r="2" fill="#333"/></svg>
+              <svg width="25" height="12" viewBox="0 0 25 12"><rect x="0" y="1" width="21" height="10" rx="2" stroke="#333" stroke-width="1" fill="none"/><rect x="1.5" y="2.5" width="14" height="7" rx="1" fill="#4CAF50"/><rect x="22" y="4" width="2" height="4" rx="1" fill="#333"/></svg>
+            </span>
+          </div>
+
+          <div class="detail-topbar">
+            <div class="detail-back">&#8592;</div>
+            <div class="detail-title">&#128221; 考研加油</div>
+            <div class="detail-edit-btn">&#9998;&#65039;</div>
+          </div>
+
+          <div class="detail-body">
+            <!-- Left half: Term lists -->
+            <div class="detail-terms">
+              <div class="detail-term-section-title">
+                <div class="dot" style="background: #4CAF50;"></div>
+                加分物（切掉得分）
+              </div>
+              <div class="detail-term-tags">
+                <div class="detail-term-tag tag-macaron1">高数</div>
+                <div class="detail-term-tag tag-macaron3">政治</div>
+                <div class="detail-term-tag tag-macaron5">英语</div>
+              </div>
+
+              <div class="detail-term-section-title" style="margin-top: 10px;">
+                <div class="dot" style="background: #FF4444;"></div>
+                扣分物（切到扣分）
+              </div>
+              <div class="detail-term-tags">
+                <div class="detail-term-tag tag-warning1">&#9888; 录取通知</div>
+                <div class="detail-term-tag tag-warning2">&#9888; 奖学金</div>
+              </div>
+            </div>
+
+            <!-- Right half: Container preview -->
+            <div class="detail-preview">
+              <div class="detail-preview-label">容器样式预览</div>
+              <div class="detail-container-preview" style="background: linear-gradient(135deg, #FFD6E8, #FFB3D1);">
+                <div class="container-text">高数</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="detail-bottom">
+            <button class="btn-select-theme">&#9989; 选择此主题</button>
+            <button class="btn-edit-theme">&#9998;&#65039; 编辑主题</button>
+          </div>
+
+          <div class="float-decor fd2"></div>
+        </div>
+      </div>
+      <div class="phone-home-indicator"></div>
+    </div>
+  </div>
+
+  <!-- ==================== Screen 5: Custom Theme Step 1 - Name ==================== -->
+  <div class="phone-wrapper">
+    <div class="screen-label">Screen 5 - 自定义主题 步骤1 命名</div>
+    <div class="phone-frame">
+      <div class="phone-notch"></div>
+      <div class="phone-screen">
+        <div class="screen-content">
+          <div class="status-bar">
+            <span class="time">9:41</span>
+            <span class="icons">
+              <svg width="16" height="12" viewBox="0 0 16 12"><rect x="0" y="5" width="3" height="7" rx="1" fill="#333"/><rect x="4.5" y="3" width="3" height="9" rx="1" fill="#333"/><rect x="9" y="1" width="3" height="11" rx="1" fill="#333"/><rect x="13.5" y="0" width="3" height="12" rx="1" fill="#333" opacity="0.3"/></svg>
+              <svg width="16" height="12" viewBox="0 0 16 12"><path d="M8 2C5.5 2 3.3 3 1.5 4.5L0 3C2.2 1.2 5 0 8 0s5.8 1.2 8 3l-1.5 1.5C12.7 3 10.5 2 8 2z" fill="#333"/><path d="M8 5.5c-1.7 0-3.2.7-4.3 1.8L2.2 5.8C3.7 4.3 5.7 3.5 8 3.5s4.3.8 5.8 2.3l-1.5 1.5C11.2 6.2 9.7 5.5 8 5.5z" fill="#333"/><circle cx="8" cy="10" r="2" fill="#333"/></svg>
+              <svg width="25" height="12" viewBox="0 0 25 12"><rect x="0" y="1" width="21" height="10" rx="2" stroke="#333" stroke-width="1" fill="none"/><rect x="1.5" y="2.5" width="14" height="7" rx="1" fill="#4CAF50"/><rect x="22" y="4" width="2" height="4" rx="1" fill="#333"/></svg>
+            </span>
+          </div>
+
+          <div class="step-topbar">
+            <div class="step-back">&#8592;</div>
+            <div class="step-title">创建自定义主题</div>
+          </div>
+          <div class="step-indicator">步骤 1 / 5</div>
+          <div class="progress-bar">
+            <div class="progress-fill" style="width: 20%;"></div>
+          </div>
+
+          <div class="step-body" style="flex-direction: row; align-items: center; gap: 24px;">
+            <div style="flex: 1; display: flex; flex-direction: column; align-items: center; gap: 8px;">
+              <div class="step-helper" style="margin-bottom: 0; font-size: 14px; color: #666; text-align: center;">
+                &#127919; 给你的主题起个名字
+              </div>
+              <div class="text-input" style="text-align: center; color: #ccc; display: flex; align-items: center; justify-content: center; height: 42px; font-size: 14px; width: 280px;">
+                给你的主题起个名字（可选）
+              </div>
+              <div class="default-hint">不填的话，默认叫「我的主题」哦~</div>
+            </div>
+
+            <div class="suggestions" style="margin-top: 0; flex: 1;">
+              <div class="suggestions-label">&#128161; 灵感推荐</div>
+              <div class="suggestion-tags">
+                <div class="suggestion-tag">打工人日记</div>
+                <div class="suggestion-tag">考研加油</div>
+                <div class="suggestion-tag">减肥进行时</div>
+                <div class="suggestion-tag">恋爱烦恼</div>
+                <div class="suggestion-tag">社恐日常</div>
+                <div class="suggestion-tag">干饭人</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="step-bottom">
+            <button class="btn-primary">下一步</button>
+          </div>
+
+          <div class="float-decor fd3"></div>
+        </div>
+      </div>
+      <div class="phone-home-indicator"></div>
+    </div>
+  </div>
+
+  <!-- ==================== Screen 6: Custom Theme Step 2 - Bonus Items ==================== -->
+  <div class="phone-wrapper">
+    <div class="screen-label">Screen 6 - 自定义主题 步骤2 加分物</div>
+    <div class="phone-frame">
+      <div class="phone-notch"></div>
+      <div class="phone-screen">
+        <div class="screen-content">
+          <div class="status-bar">
+            <span class="time">9:41</span>
+            <span class="icons">
+              <svg width="16" height="12" viewBox="0 0 16 12"><rect x="0" y="5" width="3" height="7" rx="1" fill="#333"/><rect x="4.5" y="3" width="3" height="9" rx="1" fill="#333"/><rect x="9" y="1" width="3" height="11" rx="1" fill="#333"/><rect x="13.5" y="0" width="3" height="12" rx="1" fill="#333" opacity="0.3"/></svg>
+              <svg width="16" height="12" viewBox="0 0 16 12"><path d="M8 2C5.5 2 3.3 3 1.5 4.5L0 3C2.2 1.2 5 0 8 0s5.8 1.2 8 3l-1.5 1.5C12.7 3 10.5 2 8 2z" fill="#333"/><path d="M8 5.5c-1.7 0-3.2.7-4.3 1.8L2.2 5.8C3.7 4.3 5.7 3.5 8 3.5s4.3.8 5.8 2.3l-1.5 1.5C11.2 6.2 9.7 5.5 8 5.5z" fill="#333"/><circle cx="8" cy="10" r="2" fill="#333"/></svg>
+              <svg width="25" height="12" viewBox="0 0 25 12"><rect x="0" y="1" width="21" height="10" rx="2" stroke="#333" stroke-width="1" fill="none"/><rect x="1.5" y="2.5" width="14" height="7" rx="1" fill="#4CAF50"/><rect x="22" y="4" width="2" height="4" rx="1" fill="#333"/></svg>
+            </span>
+          </div>
+
+          <div class="step-topbar">
+            <div class="step-back">&#8592;</div>
+            <div class="step-title">加分物（切掉得分）</div>
+          </div>
+          <div class="step-indicator">步骤 2 / 5</div>
+          <div class="progress-bar">
+            <div class="progress-fill" style="width: 40%;"></div>
+          </div>
+
+          <div class="step-body">
+            <div class="step-helper">输入你想切掉的东西，最多10个，每个最多6个字</div>
+
+            <div class="input-row">
+              <div class="text-input" style="display: flex; align-items: center; color: #ccc;">输入你想切掉的东西...</div>
+              <button class="add-btn">+</button>
+            </div>
+
+            <div class="term-list">
+              <div class="term-item">
+                <div class="term-color-dot" style="background: #FFB3BA;"></div>
+                <div class="term-text">加班</div>
+                <div class="term-status approved">&#10003; 已通过</div>
+              </div>
+              <div class="term-item">
+                <div class="term-color-dot" style="background: #BAFFC9;"></div>
+                <div class="term-text">开会</div>
+                <div class="term-status approved">&#10003; 已通过</div>
+              </div>
+              <div class="term-item">
+                <div class="term-color-dot" style="background: #BAE1FF;"></div>
+                <div class="term-text">周一</div>
+                <div class="term-status approved">&#10003; 已通过</div>
+              </div>
+              <div class="term-item">
+                <div class="term-color-dot" style="background: #FFFFBA;"></div>
+                <div class="term-text">早起</div>
+                <div class="term-status reviewing"><span class="spinner"></span> 审核中...</div>
+              </div>
+            </div>
+
+            <div class="term-counter">4 / 10</div>
+          </div>
+
+          <div class="step-bottom">
+            <button class="btn-primary">下一步</button>
+          </div>
+        </div>
+      </div>
+      <div class="phone-home-indicator"></div>
+    </div>
+  </div>
+
+  <!-- ==================== Screen 7: Custom Theme Step 3 - Penalty Items ==================== -->
+  <div class="phone-wrapper">
+    <div class="screen-label">Screen 7 - 自定义主题 步骤3 扣分物</div>
+    <div class="phone-frame">
+      <div class="phone-notch"></div>
+      <div class="phone-screen">
+        <div class="screen-content">
+          <div class="status-bar">
+            <span class="time">9:41</span>
+            <span class="icons">
+              <svg width="16" height="12" viewBox="0 0 16 12"><rect x="0" y="5" width="3" height="7" rx="1" fill="#333"/><rect x="4.5" y="3" width="3" height="9" rx="1" fill="#333"/><rect x="9" y="1" width="3" height="11" rx="1" fill="#333"/><rect x="13.5" y="0" width="3" height="12" rx="1" fill="#333" opacity="0.3"/></svg>
+              <svg width="16" height="12" viewBox="0 0 16 12"><path d="M8 2C5.5 2 3.3 3 1.5 4.5L0 3C2.2 1.2 5 0 8 0s5.8 1.2 8 3l-1.5 1.5C12.7 3 10.5 2 8 2z" fill="#333"/><path d="M8 5.5c-1.7 0-3.2.7-4.3 1.8L2.2 5.8C3.7 4.3 5.7 3.5 8 3.5s4.3.8 5.8 2.3l-1.5 1.5C11.2 6.2 9.7 5.5 8 5.5z" fill="#333"/><circle cx="8" cy="10" r="2" fill="#333"/></svg>
+              <svg width="25" height="12" viewBox="0 0 25 12"><rect x="0" y="1" width="21" height="10" rx="2" stroke="#333" stroke-width="1" fill="none"/><rect x="1.5" y="2.5" width="14" height="7" rx="1" fill="#4CAF50"/><rect x="22" y="4" width="2" height="4" rx="1" fill="#333"/></svg>
+            </span>
+          </div>
+
+          <div class="step-topbar">
+            <div class="step-back">&#8592;</div>
+            <div class="step-title">扣分物（切到扣分）</div>
+          </div>
+          <div class="step-indicator">步骤 3 / 5</div>
+          <div class="progress-bar">
+            <div class="progress-fill" style="width: 60%;"></div>
+          </div>
+
+          <div class="step-body">
+            <div class="step-helper">输入你不想切的东西，最多5个<br><span style="font-size: 10px; color: #bbb;">小心别切到它们哦！切到会扣分的~</span></div>
+
+            <div class="input-row">
+              <div class="text-input" style="display: flex; align-items: center; color: #ccc;">输入不想切的东西...</div>
+              <button class="add-btn" style="background: linear-gradient(135deg, #FF4444, #FF6B35);">+</button>
+            </div>
+
+            <div class="term-list">
+              <div class="term-item penalty-item">
+                <div class="term-color-dot" style="background: #FF6B35;"></div>
+                <div class="term-text">奖金</div>
+                <div class="term-status" style="color: #FF6B35;">&#9888; 扣分</div>
+              </div>
+              <div class="term-item penalty-item">
+                <div class="term-color-dot" style="background: #FF4444;"></div>
+                <div class="term-text">放假</div>
+                <div class="term-status" style="color: #FF4444;">&#9888; 扣分</div>
+              </div>
+            </div>
+
+            <div class="term-counter">2 / 5</div>
+          </div>
+
+          <div class="step-bottom">
+            <button class="btn-primary">下一步</button>
+          </div>
+        </div>
+      </div>
+      <div class="phone-home-indicator"></div>
+    </div>
+  </div>
+
+  <!-- ==================== Screen 8: Custom Theme Step 4 - Preview ==================== -->
+  <div class="phone-wrapper">
+    <div class="screen-label">Screen 8 - 自定义主题 步骤4 预览</div>
+    <div class="phone-frame">
+      <div class="phone-notch"></div>
+      <div class="phone-screen">
+        <div class="screen-content">
+          <div class="status-bar">
+            <span class="time">9:41</span>
+            <span class="icons">
+              <svg width="16" height="12" viewBox="0 0 16 12"><rect x="0" y="5" width="3" height="7" rx="1" fill="#333"/><rect x="4.5" y="3" width="3" height="9" rx="1" fill="#333"/><rect x="9" y="1" width="3" height="11" rx="1" fill="#333"/><rect x="13.5" y="0" width="3" height="12" rx="1" fill="#333" opacity="0.3"/></svg>
+              <svg width="16" height="12" viewBox="0 0 16 12"><path d="M8 2C5.5 2 3.3 3 1.5 4.5L0 3C2.2 1.2 5 0 8 0s5.8 1.2 8 3l-1.5 1.5C12.7 3 10.5 2 8 2z" fill="#333"/><path d="M8 5.5c-1.7 0-3.2.7-4.3 1.8L2.2 5.8C3.7 4.3 5.7 3.5 8 3.5s4.3.8 5.8 2.3l-1.5 1.5C11.2 6.2 9.7 5.5 8 5.5z" fill="#333"/><circle cx="8" cy="10" r="2" fill="#333"/></svg>
+              <svg width="25" height="12" viewBox="0 0 25 12"><rect x="0" y="1" width="21" height="10" rx="2" stroke="#333" stroke-width="1" fill="none"/><rect x="1.5" y="2.5" width="14" height="7" rx="1" fill="#4CAF50"/><rect x="22" y="4" width="2" height="4" rx="1" fill="#333"/></svg>
+            </span>
+          </div>
+
+          <div class="step-topbar">
+            <div class="step-back">&#8592;</div>
+            <div class="step-title">预览效果</div>
+          </div>
+          <div class="step-indicator">步骤 4 / 5</div>
+          <div class="progress-bar">
+            <div class="progress-fill" style="width: 80%;"></div>
+          </div>
+
+          <div class="preview-body" style="display: flex; flex-direction: row; gap: 20px; align-items: flex-start;">
+            <div style="text-align: center; flex-shrink: 0; padding-top: 4px;">
+              <div style="font-size: 11px; color: #999;">主题名称</div>
+              <div style="font-size: 18px; font-weight: 800; color: #333; margin-top: 2px;">我的主题</div>
+            </div>
+
+            <div style="flex: 1;">
+              <div class="preview-section-title">
+                <div class="dot" style="background: #4CAF50;"></div>
+                加分物（切掉得分）
+              </div>
+              <div class="preview-grid">
+                <div class="preview-bubble pb1">加班</div>
+                <div class="preview-bubble pb2">开会</div>
+                <div class="preview-bubble pb3">周一</div>
+                <div class="preview-bubble pb4">早起</div>
+                <div class="preview-bubble pb5">堵车</div>
+                <div class="preview-bubble pb6">DDL</div>
+              </div>
+
+              <div class="preview-section-title">
+                <div class="dot" style="background: #FF4444;"></div>
+                扣分物（切到扣分）
+              </div>
+              <div class="preview-grid">
+                <div class="penalty-bubble pbw1">&#9888; 奖金</div>
+                <div class="penalty-bubble pbw2">&#9888; 放假</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="step-bottom">
+            <button class="btn-primary" style="font-size: 15px; height: 40px;">&#128190; 保存</button>
+          </div>
+
+          <div class="float-decor fd1"></div>
+          <div class="float-decor fd2"></div>
+        </div>
+      </div>
+      <div class="phone-home-indicator"></div>
+    </div>
+  </div>
+
+  <!-- ==================== Screen 9: Custom Theme Step 5 - Success ==================== -->
+  <div class="phone-wrapper">
+    <div class="screen-label">Screen 9 - 自定义主题 步骤5 完成</div>
+    <div class="phone-frame">
+      <div class="phone-notch"></div>
+      <div class="phone-screen">
+        <div class="screen-content">
+          <div class="status-bar">
+            <span class="time">9:41</span>
+            <span class="icons">
+              <svg width="16" height="12" viewBox="0 0 16 12"><rect x="0" y="5" width="3" height="7" rx="1" fill="#333"/><rect x="4.5" y="3" width="3" height="9" rx="1" fill="#333"/><rect x="9" y="1" width="3" height="11" rx="1" fill="#333"/><rect x="13.5" y="0" width="3" height="12" rx="1" fill="#333" opacity="0.3"/></svg>
+              <svg width="16" height="12" viewBox="0 0 16 12"><path d="M8 2C5.5 2 3.3 3 1.5 4.5L0 3C2.2 1.2 5 0 8 0s5.8 1.2 8 3l-1.5 1.5C12.7 3 10.5 2 8 2z" fill="#333"/><path d="M8 5.5c-1.7 0-3.2.7-4.3 1.8L2.2 5.8C3.7 4.3 5.7 3.5 8 3.5s4.3.8 5.8 2.3l-1.5 1.5C11.2 6.2 9.7 5.5 8 5.5z" fill="#333"/><circle cx="8" cy="10" r="2" fill="#333"/></svg>
+              <svg width="25" height="12" viewBox="0 0 25 12"><rect x="0" y="1" width="21" height="10" rx="2" stroke="#333" stroke-width="1" fill="none"/><rect x="1.5" y="2.5" width="14" height="7" rx="1" fill="#4CAF50"/><rect x="22" y="4" width="2" height="4" rx="1" fill="#333"/></svg>
+            </span>
+          </div>
+
+          <div class="success-body">
+            <!-- Confetti -->
+            <div class="confetti-container">
+              <div class="confetti" style="left: 10%; background: #FFB3BA; animation-duration: 3s; animation-delay: 0s;"></div>
+              <div class="confetti" style="left: 25%; background: #BAFFC9; animation-duration: 3.5s; animation-delay: 0.3s;"></div>
+              <div class="confetti" style="left: 40%; background: #BAE1FF; animation-duration: 2.8s; animation-delay: 0.6s;"></div>
+              <div class="confetti" style="left: 55%; background: #FFFFBA; animation-duration: 3.2s; animation-delay: 0.2s;"></div>
+              <div class="confetti" style="left: 70%; background: #D4BAFF; animation-duration: 2.9s; animation-delay: 0.5s;"></div>
+              <div class="confetti" style="left: 85%; background: #FFB3E6; animation-duration: 3.3s; animation-delay: 0.1s;"></div>
+              <div class="confetti" style="left: 15%; background: #FF6B35; animation-duration: 3.1s; animation-delay: 0.8s; border-radius: 50%;"></div>
+              <div class="confetti" style="left: 50%; background: #4CAF50; animation-duration: 2.7s; animation-delay: 0.4s; border-radius: 50%;"></div>
+              <div class="confetti" style="left: 75%; background: #FFB3BA; animation-duration: 3.4s; animation-delay: 0.7s; border-radius: 50%;"></div>
+              <div class="confetti" style="left: 35%; background: #BAE1FF; animation-duration: 3s; animation-delay: 0.9s;"></div>
+              <div class="confetti" style="left: 60%; background: #D4BAFF; animation-duration: 2.6s; animation-delay: 1.1s;"></div>
+              <div class="confetti" style="left: 90%; background: #FFFFBA; animation-duration: 3.6s; animation-delay: 0.15s;"></div>
+            </div>
+
+            <!-- Stars -->
+            <div class="star" style="top: 10%; left: 8%; animation-delay: 0s;">&#10022;</div>
+            <div class="star" style="top: 20%; right: 12%; animation-delay: 0.5s;">&#10022;</div>
+            <div class="star" style="top: 60%; left: 5%; animation-delay: 1s;">&#10022;</div>
+            <div class="star" style="bottom: 15%; right: 8%; animation-delay: 1.5s;">&#10022;</div>
+            <div class="star" style="bottom: 30%; left: 15%; animation-delay: 0.8s;">&#10022;</div>
+            <div class="star" style="top: 40%; right: 18%; animation-delay: 1.2s;">&#10022;</div>
+
+            <div class="success-icon">&#10003;</div>
+
+            <div class="success-text-group">
+              <div class="success-title">主题创建成功！</div>
+              <div class="success-theme-name">&#127919; 我的主题</div>
+              <div class="success-stats">加分物 6个 &nbsp;|&nbsp; 扣分物 2个</div>
+            </div>
+
+            <div class="success-buttons">
+              <button class="btn-primary-sm">&#127918; 立即开始游戏</button>
+              <button class="btn-outline">返回首页</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="phone-home-indicator"></div>
+    </div>
+  </div>
+
+  <!-- ==================== Screen 10: Theme Management (REDESIGN) ==================== -->
+  <div class="phone-wrapper">
+    <div class="screen-label">Screen 10 - 主题管理页</div>
+    <div class="phone-frame">
+      <div class="phone-notch"></div>
+      <div class="phone-screen">
+        <div class="screen-content">
+          <div class="status-bar">
+            <span class="time">9:41</span>
+            <span class="icons">
+              <svg width="16" height="12" viewBox="0 0 16 12"><rect x="0" y="5" width="3" height="7" rx="1" fill="#333"/><rect x="4.5" y="3" width="3" height="9" rx="1" fill="#333"/><rect x="9" y="1" width="3" height="11" rx="1" fill="#333"/><rect x="13.5" y="0" width="3" height="12" rx="1" fill="#333" opacity="0.3"/></svg>
+              <svg width="16" height="12" viewBox="0 0 16 12"><path d="M8 2C5.5 2 3.3 3 1.5 4.5L0 3C2.2 1.2 5 0 8 0s5.8 1.2 8 3l-1.5 1.5C12.7 3 10.5 2 8 2z" fill="#333"/><path d="M8 5.5c-1.7 0-3.2.7-4.3 1.8L2.2 5.8C3.7 4.3 5.7 3.5 8 3.5s4.3.8 5.8 2.3l-1.5 1.5C11.2 6.2 9.7 5.5 8 5.5z" fill="#333"/><circle cx="8" cy="10" r="2" fill="#333"/></svg>
+              <svg width="25" height="12" viewBox="0 0 25 12"><rect x="0" y="1" width="21" height="10" rx="2" stroke="#333" stroke-width="1" fill="none"/><rect x="1.5" y="2.5" width="14" height="7" rx="1" fill="#4CAF50"/><rect x="22" y="4" width="2" height="4" rx="1" fill="#333"/></svg>
+            </span>
+          </div>
+
+          <div class="manage-topbar">
+            <div class="manage-back">&#8592;</div>
+            <div class="manage-title">我的主题</div>
+          </div>
+
+          <div class="manage-create-btn">+ 创建</div>
+
+          <div class="manage-body">
+            <div class="theme-list">
+              <!-- Theme 1 -->
+              <div class="theme-list-item">
+                <div class="theme-list-icon" style="background: linear-gradient(135deg, #FFD6E8, #FFB3D1);">
+                  &#128221;
+                </div>
+                <div class="theme-list-info">
+                  <div class="theme-list-name">考研加油</div>
+                  <div class="theme-list-meta">加分3个 &middot; 扣分2个</div>
+                </div>
+                <div class="theme-list-date">2026-04-20</div>
+                <div class="theme-list-actions">
+                  <span title="编辑">&#9998;&#65039;</span>
+                  <span title="删除">&#128465;&#65039;</span>
+                </div>
+              </div>
+
+              <!-- Theme 2 -->
+              <div class="theme-list-item">
+                <div class="theme-list-icon" style="background: linear-gradient(135deg, #BAE1FF, #7BC8FF);">
+                  &#128221;
+                </div>
+                <div class="theme-list-info">
+                  <div class="theme-list-name">减肥进行时</div>
+                  <div class="theme-list-meta">加分5个 &middot; 扣分1个</div>
+                </div>
+                <div class="theme-list-date">2026-04-19</div>
+                <div class="theme-list-actions">
+                  <span title="编辑">&#9998;&#65039;</span>
+                  <span title="删除">&#128465;&#65039;</span>
+                </div>
+              </div>
+
+              <!-- Theme 3 -->
+              <div class="theme-list-item">
+                <div class="theme-list-icon" style="background: linear-gradient(135deg, #D4EDDA, #BAFFC9);">
+                  &#128221;
+                </div>
+                <div class="theme-list-info">
+                  <div class="theme-list-name">打工人日记</div>
+                  <div class="theme-list-meta">加分4个 &middot; 扣分3个</div>
+                </div>
+                <div class="theme-list-date">2026-04-18</div>
+                <div class="theme-list-actions">
+                  <span title="编辑">&#9998;&#65039;</span>
+                  <span title="删除">&#128465;&#65039;</span>
+                </div>
+              </div>
+            </div>
+
+            <div style="text-align: center; padding: 10px 0; color: #ccc; font-size: 12px;">
+              共 3 个自定义主题
+            </div>
+          </div>
+
+          <div class="float-decor fd3"></div>
+        </div>
+      </div>
+      <div class="phone-home-indicator"></div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  // Add subtle hover interactions
+  document.querySelectorAll('.ts-card, .ts-custom-card, .theme-card').forEach(card => {
+    card.addEventListener('click', function() {
+      this.style.transform = 'scale(0.97)';
+      setTimeout(() => { this.style.transform = ''; }, 150);
+    });
+  });
+
+  document.querySelectorAll('.suggestion-tag').forEach(tag => {
+    tag.addEventListener('click', function() {
+      this.style.background = '#FF6B35';
+      this.style.color = '#fff';
+      setTimeout(() => {
+        this.style.background = 'rgba(255,255,255,0.7)';
+        this.style.color = '#888';
+      }, 800);
+    });
+  });
+
+  document.querySelectorAll('.btn-primary, .btn-primary-sm, .btn-start, .btn-select-theme').forEach(btn => {
+    btn.addEventListener('click', function() {
+      this.style.transform = 'scale(0.97)';
+      setTimeout(() => { this.style.transform = ''; }, 150);
+    });
+  });
+
+  document.querySelectorAll('.mode-card').forEach(card => {
+    card.addEventListener('click', function() {
+      document.querySelectorAll('.mode-card').forEach(c => c.classList.remove('selected'));
+      this.classList.add('selected');
+    });
+  });
+
+  document.querySelectorAll('.duration-card').forEach(card => {
+    card.addEventListener('click', function() {
+      document.querySelectorAll('.duration-card').forEach(c => {
+        c.classList.remove('selected-green', 'selected-orange', 'selected-red');
+      });
+      const cards = Array.from(document.querySelectorAll('.duration-card'));
+      const idx = cards.indexOf(this);
+      if (idx === 0) this.classList.add('selected-green');
+      else if (idx === 1) this.classList.add('selected-orange');
+      else this.classList.add('selected-red');
+    });
+  });
+
+  document.querySelectorAll('.theme-list-item').forEach(item => {
+    item.addEventListener('click', function(e) {
+      if (e.target.closest('.theme-list-actions')) return;
+      this.style.transform = 'scale(0.98)';
+      setTimeout(() => { this.style.transform = ''; }, 150);
+    });
+  });
+
+  document.querySelectorAll('.theme-list-actions span').forEach(action => {
+    action.addEventListener('click', function(e) {
+      e.stopPropagation();
+      this.style.transform = 'scale(1.3)';
+      setTimeout(() => { this.style.transform = ''; }, 200);
+    });
+  });
+</script>
+
+</body>
+</html>

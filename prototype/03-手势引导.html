@@ -1,0 +1,1642 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>03 - 引导页面</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap');
+
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  body {
+    font-family: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Helvetica Neue', sans-serif;
+    background: linear-gradient(135deg, #E8F4FD 0%, #E8E0F0 100%);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+    color: #333;
+  }
+
+  /* Page Title Header */
+  .page-header {
+    text-align: center;
+    margin-bottom: 40px;
+  }
+
+  .page-header h1 {
+    font-size: 28px;
+    font-weight: 700;
+    color: #333;
+    letter-spacing: 2px;
+  }
+
+  .page-header p {
+    font-size: 14px;
+    color: #999;
+    margin-top: 8px;
+  }
+
+  /* Screen Label */
+  .screen-label {
+    text-align: center;
+    margin-bottom: 16px;
+    font-size: 16px;
+    font-weight: 500;
+    color: #666;
+  }
+
+  .screen-label span {
+    display: inline-block;
+    background: rgba(255, 107, 53, 0.1);
+    color: #FF6B35;
+    padding: 4px 14px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 500;
+  }
+
+  /* Phone Frame - LANDSCAPE */
+  .phone-frame {
+    width: 812px;
+    height: 375px;
+    background: #000;
+    border-radius: 40px;
+    padding: 12px;
+    position: relative;
+    box-shadow:
+      0 0 0 2px #1a1a2e,
+      0 0 0 4px #333,
+      0 20px 60px rgba(0, 0, 0, 0.3),
+      0 8px 20px rgba(0, 0, 0, 0.2);
+    overflow: hidden;
+    margin-bottom: 48px;
+  }
+
+  /* Side buttons - landscape positions */
+  .phone-frame::before {
+    content: '';
+    position: absolute;
+    right: -3px;
+    top: 80px;
+    width: 4px;
+    height: 40px;
+    background: #333;
+    border-radius: 0 2px 2px 0;
+    box-shadow: 0 50px 0 #333;
+  }
+
+  .phone-frame::after {
+    content: '';
+    position: absolute;
+    left: -3px;
+    top: 100px;
+    width: 4px;
+    height: 28px;
+    background: #333;
+    border-radius: 2px 0 0 2px;
+    box-shadow: 0 40px 0 #333, 0 70px 0 #333;
+  }
+
+  .phone-screen {
+    width: 100%;
+    height: 100%;
+    border-radius: 32px;
+    overflow: hidden;
+    position: relative;
+    background: #fff;
+  }
+
+  /* Dynamic Island - landscape (LEFT side, vertically centered) */
+  .dynamic-island {
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 28px;
+    height: 120px;
+    background: #000;
+    border-radius: 14px;
+    z-index: 100;
+  }
+
+  .dynamic-island::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 6px;
+    height: 50px;
+    background: #1a1a2e;
+    border-radius: 3px;
+  }
+
+  .dynamic-island::after {
+    content: '';
+    position: absolute;
+    bottom: 18px;
+    left: 7px;
+    width: 10px;
+    height: 10px;
+    background: #1a1a2e;
+    border-radius: 50%;
+  }
+
+  /* Status Bar */
+  .status-bar {
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 40px 0 42px;
+    font-size: 11px;
+    font-weight: 600;
+    position: relative;
+    z-index: 50;
+  }
+
+  .status-bar .time {
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  .status-bar .icons {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+    font-size: 11px;
+  }
+
+  /* ============ TUTORIAL SCREEN (Dark) ============ */
+  .tutorial-screen {
+    background: linear-gradient(180deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+  }
+
+  .tutorial-screen .status-bar {
+    color: #fff;
+  }
+
+  /* Nav Bar */
+  .nav-bar {
+    display: flex;
+    align-items: center;
+    padding: 4px 20px 8px;
+    position: relative;
+    z-index: 10;
+  }
+
+  .nav-bar .back-btn {
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.15);
+    border: none;
+    cursor: pointer;
+    font-size: 15px;
+    color: #fff;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: background 0.2s;
+  }
+
+  .nav-bar .back-btn:hover {
+    background: rgba(255, 255, 255, 0.25);
+  }
+
+  .nav-bar .nav-title {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 15px;
+    font-weight: 600;
+    color: #fff;
+  }
+
+  /* Nav bar for light screens */
+  .nav-bar-light .nav-title {
+    color: #333;
+  }
+
+  .nav-bar-light .back-btn {
+    background: rgba(0, 0, 0, 0.06);
+    color: #333;
+  }
+
+  .nav-bar-light .back-btn:hover {
+    background: rgba(0, 0, 0, 0.1);
+  }
+
+  /* Camera simulation overlay */
+  .camera-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 0;
+  }
+
+  /* Camera viewfinder */
+  .camera-viewfinder {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 500px;
+    height: 200px;
+    border: 2px dashed rgba(255, 255, 255, 0.15);
+    border-radius: 20px;
+  }
+
+  .camera-viewfinder::before,
+  .camera-viewfinder::after {
+    content: '';
+    position: absolute;
+    background: rgba(255, 255, 255, 0.06);
+  }
+
+  .camera-viewfinder::before {
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: 1px;
+  }
+
+  .camera-viewfinder::after {
+    left: 50%;
+    top: 0;
+    bottom: 0;
+    width: 1px;
+  }
+
+  /* Corner brackets for viewfinder */
+  .corner {
+    position: absolute;
+    width: 28px;
+    height: 28px;
+    border-color: rgba(255, 255, 255, 0.35);
+    border-style: solid;
+  }
+
+  .corner-tl { top: -1px; left: -1px; border-width: 3px 0 0 3px; border-radius: 8px 0 0 0; }
+  .corner-tr { top: -1px; right: -1px; border-width: 3px 3px 0 0; border-radius: 0 8px 0 0; }
+  .corner-bl { bottom: -1px; left: -1px; border-width: 0 0 3px 3px; border-radius: 0 0 0 8px; }
+  .corner-br { bottom: -1px; right: -1px; border-width: 0 3px 3px 0; border-radius: 0 0 8px 0; }
+
+  /* Tutorial content layout */
+  .tutorial-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    z-index: 10;
+    padding: 0 44px 0 44px;
+    min-height: 0;
+  }
+
+  /* Step indicator */
+  .step-indicator {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 4px 0 8px;
+  }
+
+  .step-dots {
+    display: flex;
+    gap: 6px;
+  }
+
+  .step-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  .step-dot.active {
+    background: #FF6B35;
+    width: 24px;
+    border-radius: 4px;
+    box-shadow: 0 0 8px rgba(255, 107, 53, 0.4);
+  }
+
+  .step-dot.active-light {
+    background: #FF6B35;
+    width: 24px;
+    border-radius: 4px;
+    box-shadow: 0 0 8px rgba(255, 107, 53, 0.4);
+  }
+
+  .step-text {
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.6);
+    font-weight: 500;
+  }
+
+  .step-text-light {
+    font-size: 12px;
+    color: #999;
+    font-weight: 500;
+  }
+
+  /* Hand illustration area */
+  .hand-illustration {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    min-height: 0;
+  }
+
+  .hand-container {
+    position: relative;
+    width: 320px;
+    height: 160px;
+  }
+
+  /* Hand silhouette */
+  .hand-silhouette {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 64px;
+    opacity: 0.9;
+    filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.2));
+    animation: handFloat 3s ease-in-out infinite;
+  }
+
+  @keyframes handFloat {
+    0%, 100% { transform: translate(-50%, -50%) translateY(0); }
+    50% { transform: translate(-50%, -50%) translateY(-8px); }
+  }
+
+  /* Motion lines */
+  .motion-line {
+    position: absolute;
+    height: 3px;
+    border-radius: 2px;
+    background: linear-gradient(90deg, transparent, rgba(255, 107, 53, 0.8), transparent);
+    animation: motionSweep 1.5s ease-in-out infinite;
+  }
+
+  .motion-line:nth-child(1) { top: 25%; right: -50px; width: 70px; animation-delay: 0s; }
+  .motion-line:nth-child(2) { top: 45%; right: -65px; width: 90px; animation-delay: 0.3s; }
+  .motion-line:nth-child(3) { top: 65%; right: -45px; width: 60px; animation-delay: 0.6s; }
+  .motion-line:nth-child(4) { top: 30%; left: -50px; width: 70px; animation-delay: 0.15s; animation-name: motionSweepLeft; }
+  .motion-line:nth-child(5) { top: 55%; left: -60px; width: 80px; animation-delay: 0.45s; animation-name: motionSweepLeft; }
+
+  @keyframes motionSweep {
+    0% { opacity: 0; transform: translateX(-20px) scaleX(0.5); }
+    50% { opacity: 1; transform: translateX(0) scaleX(1); }
+    100% { opacity: 0; transform: translateX(20px) scaleX(0.5); }
+  }
+
+  @keyframes motionSweepLeft {
+    0% { opacity: 0; transform: translateX(20px) scaleX(0.5); }
+    50% { opacity: 1; transform: translateX(0) scaleX(1); }
+    100% { opacity: 0; transform: translateX(-20px) scaleX(0.5); }
+  }
+
+  /* Swipe arrow */
+  .swipe-arrow {
+    position: absolute;
+    bottom: 5px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    animation: arrowPulse 2s ease-in-out infinite;
+  }
+
+  .swipe-arrow .arrow-line {
+    width: 100px;
+    height: 2px;
+    background: linear-gradient(90deg, rgba(255, 107, 53, 0.2), #FF6B35);
+  }
+
+  .swipe-arrow .arrow-head {
+    width: 0;
+    height: 0;
+    border-top: 7px solid transparent;
+    border-bottom: 7px solid transparent;
+    border-left: 12px solid #FF6B35;
+  }
+
+  @keyframes arrowPulse {
+    0%, 100% { opacity: 0.5; transform: translateX(-50%) translateX(-8px); }
+    50% { opacity: 1; transform: translateX(-50%) translateX(8px); }
+  }
+
+  /* Instruction text */
+  .instruction-text {
+    text-align: center;
+    padding: 6px 10px;
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.85);
+    line-height: 1.4;
+  }
+
+  /* Tips section - horizontal layout */
+  .tips-section {
+    display: flex;
+    gap: 8px;
+    padding: 0 0 8px;
+  }
+
+  .tip-item {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 10px;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 10px;
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+  }
+
+  .tip-item .tip-icon {
+    font-size: 15px;
+    flex-shrink: 0;
+  }
+
+  .tip-item .tip-text {
+    font-size: 11px;
+    color: rgba(255, 255, 255, 0.75);
+    line-height: 1.3;
+  }
+
+  /* Tutorial bottom */
+  .tutorial-bottom {
+    padding: 8px 44px 16px;
+    position: relative;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .tutorial-start-btn {
+    flex: 1;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #FF6B35, #FF8F5E);
+    color: #fff;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 6px 20px rgba(255, 107, 53, 0.35);
+    letter-spacing: 1px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    white-space: nowrap;
+  }
+
+  .tutorial-start-btn:hover {
+    box-shadow: 0 8px 24px rgba(255, 107, 53, 0.45);
+  }
+
+  .tutorial-start-btn:active {
+    transform: scale(0.97);
+    box-shadow: 0 4px 12px rgba(255, 107, 53, 0.25);
+  }
+
+  .tutorial-switch-text {
+    font-size: 10px;
+    color: rgba(255, 255, 255, 0.35);
+    white-space: nowrap;
+  }
+
+  /* Pulse ring animation on hand */
+  .pulse-ring {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 80px;
+    height: 80px;
+    border: 2px solid rgba(255, 107, 53, 0.3);
+    border-radius: 50%;
+    animation: pulseRing 2s ease-out infinite;
+  }
+
+  .pulse-ring:nth-child(7) { animation-delay: 0.7s; }
+  .pulse-ring:nth-child(8) { animation-delay: 1.4s; }
+
+  @keyframes pulseRing {
+    0% { width: 70px; height: 70px; opacity: 0.6; }
+    100% { width: 180px; height: 180px; opacity: 0; }
+  }
+
+  /* Sparkle particles */
+  .sparkle {
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    background: rgba(255, 200, 100, 0.8);
+    border-radius: 50%;
+    animation: sparkleFloat 3s ease-in-out infinite;
+  }
+
+  .sparkle:nth-child(9) { top: 10%; left: 8%; animation-delay: 0s; }
+  .sparkle:nth-child(10) { top: 80%; left: 88%; animation-delay: 0.8s; }
+  .sparkle:nth-child(11) { top: 8%; right: 12%; animation-delay: 1.6s; }
+  .sparkle:nth-child(12) { bottom: 15%; left: 15%; animation-delay: 0.4s; }
+  .sparkle:nth-child(13) { top: 20%; right: 8%; animation-delay: 2.0s; }
+  .sparkle:nth-child(14) { bottom: 25%; right: 20%; animation-delay: 1.2s; }
+
+  @keyframes sparkleFloat {
+    0%, 100% { opacity: 0; transform: translateY(0) scale(0.5); }
+    50% { opacity: 1; transform: translateY(-12px) scale(1.2); }
+  }
+
+  /* Home indicator */
+  .home-indicator {
+    width: 134px;
+    height: 5px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 3px;
+    margin: 4px auto 2px;
+    position: relative;
+    z-index: 10;
+  }
+
+  .home-indicator-light {
+    width: 134px;
+    height: 5px;
+    background: rgba(0, 0, 0, 0.15);
+    border-radius: 3px;
+    margin: 4px auto 2px;
+    position: relative;
+    z-index: 10;
+  }
+
+  /* Scan line animation for camera effect */
+  .scan-line {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, rgba(255, 107, 53, 0.3), transparent);
+    animation: scanDown 4s ease-in-out infinite;
+    z-index: 1;
+  }
+
+  @keyframes scanDown {
+    0% { top: 10%; opacity: 0; }
+    10% { opacity: 1; }
+    90% { opacity: 1; }
+    100% { top: 90%; opacity: 0; }
+  }
+
+  /* Glow effect around viewfinder */
+  .viewfinder-glow {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 520px;
+    height: 220px;
+    border-radius: 24px;
+    background: radial-gradient(ellipse, rgba(255, 107, 53, 0.06) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  /* ============ SCREEN 2: Camera Permission ============ */
+  .permission-screen {
+    background: linear-gradient(180deg, #1a1a2e 0%, #0d1117 100%);
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+  }
+
+  .permission-screen .status-bar {
+    color: #fff;
+  }
+
+  .permission-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    z-index: 10;
+    padding: 0 44px;
+    gap: 16px;
+  }
+
+  .camera-icon-wrapper {
+    width: 80px;
+    height: 80px;
+    border-radius: 24px;
+    background: rgba(255, 255, 255, 0.08);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .permission-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: #fff;
+    text-align: center;
+  }
+
+  .permission-desc {
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.5);
+    text-align: center;
+    line-height: 1.6;
+    max-width: 400px;
+  }
+
+  .permission-bottom {
+    padding: 12px 44px 16px;
+    position: relative;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .btn-primary {
+    flex: 1;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #FF6B35, #FF8F5E);
+    color: #fff;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 6px 20px rgba(255, 107, 53, 0.35);
+    letter-spacing: 1px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    white-space: nowrap;
+  }
+
+  .btn-primary:hover {
+    box-shadow: 0 8px 24px rgba(255, 107, 53, 0.45);
+  }
+
+  .btn-primary:active {
+    transform: scale(0.97);
+  }
+
+  .btn-secondary {
+    padding: 12px 20px;
+    border: none;
+    border-radius: 14px;
+    background: transparent;
+    color: rgba(255, 255, 255, 0.45);
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: color 0.2s;
+  }
+
+  .btn-secondary:hover {
+    color: rgba(255, 255, 255, 0.7);
+  }
+
+  /* ============ SCREEN 3: Trial Play ============ */
+  .trial-screen {
+    background: linear-gradient(180deg, #0a1628 0%, #0f2847 50%, #162d50 100%);
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+  }
+
+  .trial-screen .status-bar {
+    color: #fff;
+  }
+
+  .trial-hud {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 24px;
+    padding: 4px 44px;
+    position: relative;
+    z-index: 10;
+  }
+
+  .hud-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.8);
+    font-weight: 500;
+  }
+
+  .hud-item .hud-label {
+    font-size: 11px;
+    color: rgba(255, 255, 255, 0.45);
+  }
+
+  .hud-item .hud-value {
+    font-size: 16px;
+    font-weight: 700;
+    color: #fff;
+  }
+
+  .hud-divider {
+    width: 1px;
+    height: 20px;
+    background: rgba(255, 255, 255, 0.15);
+  }
+
+  .trial-game-area {
+    flex: 1;
+    position: relative;
+    z-index: 5;
+    overflow: hidden;
+  }
+
+  /* Bubble targets */
+  .bubble {
+    position: absolute;
+    border-radius: 50%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3), inset 0 -4px 12px rgba(0, 0, 0, 0.1), inset 0 4px 12px rgba(255, 255, 255, 0.15);
+    animation: bubbleFloat 3s ease-in-out infinite;
+  }
+
+  .bubble-green {
+    background: linear-gradient(135deg, #4CD964, #34C759);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+  }
+
+  .bubble-red {
+    background: linear-gradient(135deg, #FF3B30, #FF453A);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+  }
+
+  .bubble .bubble-text {
+    font-size: 14px;
+    font-weight: 700;
+    color: #fff;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  }
+
+  .bubble .bubble-score {
+    font-size: 10px;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.85);
+    margin-top: 2px;
+  }
+
+  .bubble-1 {
+    width: 70px;
+    height: 70px;
+    top: 15%;
+    left: 20%;
+    animation-delay: 0s;
+  }
+
+  .bubble-2 {
+    width: 70px;
+    height: 70px;
+    top: 30%;
+    right: 22%;
+    animation-delay: 0.5s;
+  }
+
+  .bubble-3 {
+    width: 65px;
+    height: 65px;
+    bottom: 25%;
+    left: 45%;
+    animation-delay: 1s;
+  }
+
+  @keyframes bubbleFloat {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+  }
+
+  /* Dashed arrow hint */
+  .swipe-hint-arrow {
+    position: absolute;
+    bottom: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    opacity: 0.5;
+  }
+
+  .swipe-hint-arrow .hint-line {
+    width: 120px;
+    height: 2px;
+    border-top: 2px dashed rgba(255, 255, 255, 0.4);
+  }
+
+  .swipe-hint-arrow .hint-head {
+    width: 0;
+    height: 0;
+    border-top: 6px solid transparent;
+    border-bottom: 6px solid transparent;
+    border-left: 10px solid rgba(255, 255, 255, 0.4);
+  }
+
+  .swipe-hint-text {
+    position: absolute;
+    bottom: 22px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 10px;
+    color: rgba(255, 255, 255, 0.3);
+    white-space: nowrap;
+  }
+
+  .trial-content {
+    position: relative;
+    z-index: 10;
+    padding: 0 44px;
+  }
+
+  .trial-bottom {
+    padding: 8px 44px 16px;
+    position: relative;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  /* ============ SCREEN 4: Swipe Mode Guide (Light) ============ */
+  .light-screen {
+    background: linear-gradient(180deg, #F5F0FF 0%, #E8F4FD 50%, #F0F8FF 100%);
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+  }
+
+  .light-screen .status-bar {
+    color: #333;
+  }
+
+  .light-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    z-index: 10;
+    padding: 0 44px;
+    gap: 16px;
+  }
+
+  /* Finger swipe illustration */
+  .swipe-illustration {
+    position: relative;
+    width: 200px;
+    height: 100px;
+    margin-bottom: 8px;
+  }
+
+  .finger-icon {
+    position: absolute;
+    top: 50%;
+    left: 20px;
+    transform: translateY(-50%);
+    font-size: 40px;
+    animation: fingerSwipe 2s ease-in-out infinite;
+  }
+
+  .swipe-trajectory {
+    position: absolute;
+    top: 50%;
+    left: 70px;
+    right: 10px;
+    height: 3px;
+    transform: translateY(-50%);
+    overflow: visible;
+  }
+
+  .swipe-trajectory svg {
+    width: 100%;
+    height: 40px;
+    overflow: visible;
+  }
+
+  @keyframes fingerSwipe {
+    0% { transform: translateY(-50%) translateX(0); }
+    50% { transform: translateY(-50%) translateX(80px); }
+    100% { transform: translateY(-50%) translateX(0); }
+  }
+
+  /* Rule cards */
+  .rule-cards {
+    display: flex;
+    gap: 10px;
+    width: 100%;
+    max-width: 600px;
+  }
+
+  .rule-card {
+    flex: 1;
+    background: #fff;
+    border-radius: 16px;
+    padding: 14px 12px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    text-align: center;
+    border: 1px solid rgba(0, 0, 0, 0.04);
+  }
+
+  .rule-card .rule-icon {
+    font-size: 28px;
+    line-height: 1;
+  }
+
+  .rule-card .rule-title {
+    font-size: 12px;
+    font-weight: 600;
+    color: #333;
+  }
+
+  .rule-card .rule-desc {
+    font-size: 11px;
+    color: #888;
+    line-height: 1.4;
+  }
+
+  .light-bottom {
+    padding: 12px 44px 16px;
+    position: relative;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .btn-primary-light {
+    flex: 1;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #FF6B35, #FF8F5E);
+    color: #fff;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 6px 20px rgba(255, 107, 53, 0.35);
+    letter-spacing: 1px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    white-space: nowrap;
+  }
+
+  .btn-primary-light:hover {
+    box-shadow: 0 8px 24px rgba(255, 107, 53, 0.45);
+  }
+
+  .btn-primary-light:active {
+    transform: scale(0.97);
+  }
+
+  /* ============ SCREEN 5: Custom Feature Guide (Light) ============ */
+  .custom-screen {
+    background: linear-gradient(180deg, #FFF5F0 0%, #F5F0FF 50%, #E8F4FD 100%);
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+  }
+
+  .custom-screen .status-bar {
+    color: #333;
+  }
+
+  .custom-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    z-index: 10;
+    padding: 0 44px;
+    gap: 16px;
+  }
+
+  /* Theme card preview */
+  .theme-card-preview {
+    background: #fff;
+    border-radius: 16px;
+    padding: 20px 28px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    width: 320px;
+    position: relative;
+    border: 1px solid rgba(0, 0, 0, 0.04);
+  }
+
+  .theme-card-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+
+  .theme-card-emoji {
+    font-size: 28px;
+  }
+
+  .theme-card-name {
+    font-size: 16px;
+    font-weight: 700;
+    color: #333;
+  }
+
+  .theme-card-tag {
+    font-size: 10px;
+    color: #FF6B35;
+    background: rgba(255, 107, 53, 0.1);
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-weight: 500;
+  }
+
+  .theme-bubbles-preview {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+  }
+
+  .theme-bubble-mini {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 600;
+    color: #fff;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  }
+
+  .theme-bubble-mini:nth-child(1) {
+    background: linear-gradient(135deg, #4CD964, #34C759);
+  }
+
+  .theme-bubble-mini:nth-child(2) {
+    background: linear-gradient(135deg, #FF9500, #FF8F00);
+  }
+
+  .theme-bubble-mini:nth-child(3) {
+    background: linear-gradient(135deg, #5AC8FA, #007AFF);
+  }
+
+  /* Arrow pointing down */
+  .arrow-down-hint {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    animation: arrowBounce 1.5s ease-in-out infinite;
+  }
+
+  .arrow-down-hint .arrow-down-line {
+    width: 2px;
+    height: 20px;
+    background: linear-gradient(180deg, rgba(255, 107, 53, 0.3), #FF6B35);
+  }
+
+  .arrow-down-hint .arrow-down-head {
+    width: 0;
+    height: 0;
+    border-left: 6px solid transparent;
+    border-right: 6px solid transparent;
+    border-top: 8px solid #FF6B35;
+  }
+
+  @keyframes arrowBounce {
+    0%, 100% { transform: translateY(0); opacity: 0.6; }
+    50% { transform: translateY(6px); opacity: 1; }
+  }
+
+  .custom-hint-text {
+    font-size: 14px;
+    font-weight: 500;
+    color: #555;
+    text-align: center;
+  }
+
+  .custom-hint-text .sparkle-emoji {
+    font-size: 16px;
+  }
+
+  .custom-bottom {
+    padding: 12px 44px 16px;
+    position: relative;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .btn-secondary-light {
+    padding: 12px 20px;
+    border: none;
+    border-radius: 14px;
+    background: transparent;
+    color: #999;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: color 0.2s;
+  }
+
+  .btn-secondary-light:hover {
+    color: #666;
+  }
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <h1>03 - 引导页面</h1>
+  <p>切你所想 / Slice It - WeChat Mini-Game Prototype</p>
+</div>
+
+<!-- ============================================================ -->
+<!-- SCREEN 1: Gesture Guide Step 1/3 -->
+<!-- ============================================================ -->
+<div class="screen-label"><span>Screen 1 - 手势引导步骤 1/3</span></div>
+
+<div class="phone-frame">
+  <div class="phone-screen">
+    <div class="dynamic-island"></div>
+
+    <div class="tutorial-screen">
+      <!-- Camera simulation overlay -->
+      <div class="camera-overlay">
+        <div class="viewfinder-glow"></div>
+        <div class="scan-line"></div>
+        <div class="camera-viewfinder">
+          <div class="corner corner-tl"></div>
+          <div class="corner corner-tr"></div>
+          <div class="corner corner-bl"></div>
+          <div class="corner corner-br"></div>
+        </div>
+      </div>
+
+      <!-- Status Bar -->
+      <div class="status-bar">
+        <span class="time">9:41</span>
+        <span class="icons">
+          <svg width="16" height="12" viewBox="0 0 16 12" fill="currentColor"><rect x="0" y="4" width="3" height="8" rx="1"/><rect x="4.5" y="2.5" width="3" height="9.5" rx="1"/><rect x="9" y="1" width="3" height="11" rx="1"/><rect x="13.5" y="0" width="3" height="12" rx="1" opacity="0.3"/></svg>
+          <svg width="16" height="12" viewBox="0 0 16 12" fill="currentColor"><path d="M8 2C5.5 2 3.2 3 1.5 4.7L0 3.2C2.1 1.2 4.9 0 8 0s5.9 1.2 8 3.2l-1.5 1.5C12.8 3 10.5 2 8 2zm0 4c-1.4 0-2.7.6-3.6 1.5L3 6.1C4.3 4.8 6.1 4 8 4s3.7.8 5 2.1l-1.4 1.4C10.7 6.6 9.4 6 8 6zm0 4c-.8 0-1.6.3-2.1.9L8 13l2.1-2.1c-.5-.6-1.3-.9-2.1-.9z"/></svg>
+          <svg width="26" height="12" viewBox="0 0 26 12" fill="currentColor"><rect x="0" y="1" width="22" height="10" rx="2" stroke="currentColor" stroke-width="1" fill="none"/><rect x="23" y="4" width="2" height="4" rx="1"/><rect x="1.5" y="2.5" width="16" height="7" rx="1" fill="#4CD964"/></svg>
+        </span>
+      </div>
+
+      <!-- Nav Bar -->
+      <div class="nav-bar">
+        <button class="back-btn">
+          <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 4l-6 6 6 6"/></svg>
+        </button>
+        <span class="nav-title">手势模式引导</span>
+      </div>
+
+      <!-- Tutorial Content -->
+      <div class="tutorial-content">
+        <!-- Step Indicator -->
+        <div class="step-indicator">
+          <div class="step-text">步骤 1/3</div>
+          <div class="step-dots">
+            <div class="step-dot active" data-step="1"></div>
+            <div class="step-dot" data-step="2"></div>
+            <div class="step-dot" data-step="3"></div>
+          </div>
+        </div>
+
+        <!-- Hand Illustration -->
+        <div class="hand-illustration">
+          <div class="hand-container">
+            <!-- Pulse rings -->
+            <div class="pulse-ring"></div>
+            <div class="pulse-ring"></div>
+            <div class="pulse-ring"></div>
+
+            <!-- Motion lines -->
+            <div class="motion-line"></div>
+            <div class="motion-line"></div>
+            <div class="motion-line"></div>
+            <div class="motion-line"></div>
+            <div class="motion-line"></div>
+
+            <!-- Hand -->
+            <div class="hand-silhouette">🖐️</div>
+
+            <!-- Sparkles -->
+            <div class="sparkle"></div>
+            <div class="sparkle"></div>
+            <div class="sparkle"></div>
+            <div class="sparkle"></div>
+            <div class="sparkle"></div>
+            <div class="sparkle"></div>
+
+            <!-- Swipe arrow -->
+            <div class="swipe-arrow">
+              <div class="arrow-line"></div>
+              <div class="arrow-head"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Instruction Text -->
+        <div class="instruction-text">
+          请将手放在画面中央，快速挥动食指进行切割
+        </div>
+
+        <!-- Tips -->
+        <div class="tips-section">
+          <div class="tip-item">
+            <span class="tip-icon">💡</span>
+            <span class="tip-text">保持光线充足</span>
+          </div>
+          <div class="tip-item">
+            <span class="tip-icon">✋</span>
+            <span class="tip-text">伸展食指快速挥动</span>
+          </div>
+          <div class="tip-item">
+            <span class="tip-icon">📏</span>
+            <span class="tip-text">将手放在画面框内</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bottom -->
+      <div class="tutorial-bottom">
+        <button class="tutorial-start-btn">下一步</button>
+      </div>
+
+      <div class="home-indicator"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- SCREEN 2: Camera Permission (Step 2/3) -->
+<!-- ============================================================ -->
+<div class="screen-label"><span>Screen 2 - 手势引导步骤 2/3：摄像头授权</span></div>
+
+<div class="phone-frame">
+  <div class="phone-screen">
+    <div class="dynamic-island"></div>
+
+    <div class="permission-screen">
+      <!-- Status Bar -->
+      <div class="status-bar">
+        <span class="time">9:41</span>
+        <span class="icons">
+          <svg width="16" height="12" viewBox="0 0 16 12" fill="currentColor"><rect x="0" y="4" width="3" height="8" rx="1"/><rect x="4.5" y="2.5" width="3" height="9.5" rx="1"/><rect x="9" y="1" width="3" height="11" rx="1"/><rect x="13.5" y="0" width="3" height="12" rx="1" opacity="0.3"/></svg>
+          <svg width="16" height="12" viewBox="0 0 16 12" fill="currentColor"><path d="M8 2C5.5 2 3.2 3 1.5 4.7L0 3.2C2.1 1.2 4.9 0 8 0s5.9 1.2 8 3.2l-1.5 1.5C12.8 3 10.5 2 8 2zm0 4c-1.4 0-2.7.6-3.6 1.5L3 6.1C4.3 4.8 6.1 4 8 4s3.7.8 5 2.1l-1.4 1.4C10.7 6.6 9.4 6 8 6zm0 4c-.8 0-1.6.3-2.1.9L8 13l2.1-2.1c-.5-.6-1.3-.9-2.1-.9z"/></svg>
+          <svg width="26" height="12" viewBox="0 0 26 12" fill="currentColor"><rect x="0" y="1" width="22" height="10" rx="2" stroke="currentColor" stroke-width="1" fill="none"/><rect x="23" y="4" width="2" height="4" rx="1"/><rect x="1.5" y="2.5" width="16" height="7" rx="1" fill="#4CD964"/></svg>
+        </span>
+      </div>
+
+      <!-- Nav Bar -->
+      <div class="nav-bar">
+        <button class="back-btn">
+          <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 4l-6 6 6 6"/></svg>
+        </button>
+        <span class="nav-title">手势模式引导</span>
+      </div>
+
+      <!-- Permission Content -->
+      <div class="permission-content">
+        <!-- Camera Icon SVG -->
+        <div class="camera-icon-wrapper">
+          <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
+            <rect x="4" y="12" width="32" height="22" rx="4" stroke="rgba(255,255,255,0.7)" stroke-width="2" fill="none"/>
+            <path d="M14 12V9a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v3" stroke="rgba(255,255,255,0.7)" stroke-width="2" fill="none"/>
+            <circle cx="20" cy="23" r="6" stroke="rgba(255,255,255,0.5)" stroke-width="2" fill="none"/>
+            <circle cx="20" cy="23" r="2.5" fill="rgba(255,255,255,0.4)"/>
+            <circle cx="32" cy="16" r="1.5" fill="rgba(255,255,255,0.5)"/>
+          </svg>
+        </div>
+
+        <div class="permission-title">需要摄像头权限才能使用手势模式</div>
+        <div class="permission-desc">您的摄像头仅用于手势识别，不会录制或上传任何画面</div>
+      </div>
+
+      <!-- Bottom -->
+      <div class="permission-bottom">
+        <button class="btn-primary">授权摄像头</button>
+        <button class="btn-secondary">跳过，使用滑动模式</button>
+      </div>
+
+      <div class="home-indicator"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- SCREEN 3: Trial Play (Step 3/3) -->
+<!-- ============================================================ -->
+<div class="screen-label"><span>Screen 3 - 手势引导步骤 3/3：试玩练习</span></div>
+
+<div class="phone-frame">
+  <div class="phone-screen">
+    <div class="dynamic-island"></div>
+
+    <div class="trial-screen">
+      <!-- Status Bar -->
+      <div class="status-bar">
+        <span class="time">9:41</span>
+        <span class="icons">
+          <svg width="16" height="12" viewBox="0 0 16 12" fill="currentColor"><rect x="0" y="4" width="3" height="8" rx="1"/><rect x="4.5" y="2.5" width="3" height="9.5" rx="1"/><rect x="9" y="1" width="3" height="11" rx="1"/><rect x="13.5" y="0" width="3" height="12" rx="1" opacity="0.3"/></svg>
+          <svg width="16" height="12" viewBox="0 0 16 12" fill="currentColor"><path d="M8 2C5.5 2 3.2 3 1.5 4.7L0 3.2C2.1 1.2 4.9 0 8 0s5.9 1.2 8 3.2l-1.5 1.5C12.8 3 10.5 2 8 2zm0 4c-1.4 0-2.7.6-3.6 1.5L3 6.1C4.3 4.8 6.1 4 8 4s3.7.8 5 2.1l-1.4 1.4C10.7 6.6 9.4 6 8 6zm0 4c-.8 0-1.6.3-2.1.9L8 13l2.1-2.1c-.5-.6-1.3-.9-2.1-.9z"/></svg>
+          <svg width="26" height="12" viewBox="0 0 26 12" fill="currentColor"><rect x="0" y="1" width="22" height="10" rx="2" stroke="currentColor" stroke-width="1" fill="none"/><rect x="23" y="4" width="2" height="4" rx="1"/><rect x="1.5" y="2.5" width="16" height="7" rx="1" fill="#4CD964"/></svg>
+        </span>
+      </div>
+
+      <!-- Nav Bar -->
+      <div class="nav-bar">
+        <button class="back-btn">
+          <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 4l-6 6 6 6"/></svg>
+        </button>
+        <span class="nav-title">试玩练习</span>
+      </div>
+
+      <!-- HUD -->
+      <div class="trial-hud">
+        <div class="hud-item">
+          <span class="hud-label">分数</span>
+          <span class="hud-value">0</span>
+        </div>
+        <div class="hud-divider"></div>
+        <div class="hud-item">
+          <span class="hud-label">连击</span>
+          <span class="hud-value">0</span>
+        </div>
+        <div class="hud-divider"></div>
+        <div class="hud-item">
+          <span class="hud-label">计时</span>
+          <span class="hud-value">0:10</span>
+        </div>
+      </div>
+
+      <!-- Step Indicator -->
+      <div class="trial-content">
+        <div class="step-indicator">
+          <div class="step-text">步骤 3/3</div>
+          <div class="step-dots">
+            <div class="step-dot" data-step="1"></div>
+            <div class="step-dot" data-step="2"></div>
+            <div class="step-dot active" data-step="3"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Game Area with Bubbles -->
+      <div class="trial-game-area">
+        <!-- Green bubble: 加班 +10 -->
+        <div class="bubble bubble-green bubble-1">
+          <span class="bubble-text">加班</span>
+          <span class="bubble-score">+10</span>
+        </div>
+
+        <!-- Green bubble: 焦虑 +10 -->
+        <div class="bubble bubble-green bubble-2">
+          <span class="bubble-text">焦虑</span>
+          <span class="bubble-score">+10</span>
+        </div>
+
+        <!-- Red bubble: 奶茶 -20 -->
+        <div class="bubble bubble-red bubble-3">
+          <span class="bubble-text">奶茶</span>
+          <span class="bubble-score">-20</span>
+        </div>
+
+        <!-- Swipe hint -->
+        <div class="swipe-hint-text">滑动或手势切割气泡</div>
+        <div class="swipe-hint-arrow">
+          <div class="hint-line"></div>
+          <div class="hint-head"></div>
+        </div>
+      </div>
+
+      <!-- Bottom -->
+      <div class="trial-bottom">
+        <button class="tutorial-start-btn">完成引导</button>
+      </div>
+
+      <div class="home-indicator"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- SCREEN 4: Swipe Mode Guide (T-03) -->
+<!-- ============================================================ -->
+<div class="screen-label"><span>Screen 4 - 滑动模式引导 (T-03)</span></div>
+
+<div class="phone-frame">
+  <div class="phone-screen">
+    <div class="dynamic-island"></div>
+
+    <div class="light-screen">
+      <!-- Status Bar -->
+      <div class="status-bar">
+        <span class="time">9:41</span>
+        <span class="icons">
+          <svg width="16" height="12" viewBox="0 0 16 12" fill="currentColor"><rect x="0" y="4" width="3" height="8" rx="1"/><rect x="4.5" y="2.5" width="3" height="9.5" rx="1"/><rect x="9" y="1" width="3" height="11" rx="1"/><rect x="13.5" y="0" width="3" height="12" rx="1" opacity="0.3"/></svg>
+          <svg width="16" height="12" viewBox="0 0 16 12" fill="currentColor"><path d="M8 2C5.5 2 3.2 3 1.5 4.7L0 3.2C2.1 1.2 4.9 0 8 0s5.9 1.2 8 3.2l-1.5 1.5C12.8 3 10.5 2 8 2zm0 4c-1.4 0-2.7.6-3.6 1.5L3 6.1C4.3 4.8 6.1 4 8 4s3.7.8 5 2.1l-1.4 1.4C10.7 6.6 9.4 6 8 6zm0 4c-.8 0-1.6.3-2.1.9L8 13l2.1-2.1c-.5-.6-1.3-.9-2.1-.9z"/></svg>
+          <svg width="26" height="12" viewBox="0 0 26 12" fill="currentColor"><rect x="0" y="1" width="22" height="10" rx="2" stroke="currentColor" stroke-width="1" fill="none"/><rect x="23" y="4" width="2" height="4" rx="1"/><rect x="1.5" y="2.5" width="16" height="7" rx="1" fill="#4CD964"/></svg>
+        </span>
+      </div>
+
+      <!-- Nav Bar -->
+      <div class="nav-bar nav-bar-light">
+        <button class="back-btn">
+          <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 4l-6 6 6 6"/></svg>
+        </button>
+        <span class="nav-title">滑动模式引导</span>
+      </div>
+
+      <!-- Content -->
+      <div class="light-content">
+        <!-- Finger swipe illustration -->
+        <div class="swipe-illustration">
+          <div class="finger-icon">👆</div>
+          <div class="swipe-trajectory">
+            <svg viewBox="0 0 120 40" fill="none">
+              <path d="M0 20 Q30 5 60 20 Q90 35 120 20" stroke="#FF6B35" stroke-width="3" fill="none" stroke-linecap="round" stroke-dasharray="6 4" opacity="0.6"/>
+              <path d="M110 14 L120 20 L110 26" stroke="#FF6B35" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0.8"/>
+            </svg>
+          </div>
+        </div>
+
+        <!-- Rule Cards -->
+        <div class="rule-cards">
+          <div class="rule-card">
+            <span class="rule-icon">🟢</span>
+            <span class="rule-title">绿色气泡</span>
+            <span class="rule-desc">加分物，切掉得分！</span>
+          </div>
+          <div class="rule-card">
+            <span class="rule-icon">🔴</span>
+            <span class="rule-title">红色气泡</span>
+            <span class="rule-desc">扣分物，小心躲避！</span>
+          </div>
+          <div class="rule-card">
+            <span class="rule-icon">⚡</span>
+            <span class="rule-title">Combo加成</span>
+            <span class="rule-desc">快速连切触发加成</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bottom -->
+      <div class="light-bottom">
+        <button class="btn-primary-light">我知道了</button>
+      </div>
+
+      <div class="home-indicator-light"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- SCREEN 5: Custom Feature Guide (T-04) -->
+<!-- ============================================================ -->
+<div class="screen-label"><span>Screen 5 - 自定义功能引导 (T-04)</span></div>
+
+<div class="phone-frame">
+  <div class="phone-screen">
+    <div class="dynamic-island"></div>
+
+    <div class="custom-screen">
+      <!-- Status Bar -->
+      <div class="status-bar">
+        <span class="time">9:41</span>
+        <span class="icons">
+          <svg width="16" height="12" viewBox="0 0 16 12" fill="currentColor"><rect x="0" y="4" width="3" height="8" rx="1"/><rect x="4.5" y="2.5" width="3" height="9.5" rx="1"/><rect x="9" y="1" width="3" height="11" rx="1"/><rect x="13.5" y="0" width="3" height="12" rx="1" opacity="0.3"/></svg>
+          <svg width="16" height="12" viewBox="0 0 16 12" fill="currentColor"><path d="M8 2C5.5 2 3.2 3 1.5 4.7L0 3.2C2.1 1.2 4.9 0 8 0s5.9 1.2 8 3.2l-1.5 1.5C12.8 3 10.5 2 8 2zm0 4c-1.4 0-2.7.6-3.6 1.5L3 6.1C4.3 4.8 6.1 4 8 4s3.7.8 5 2.1l-1.4 1.4C10.7 6.6 9.4 6 8 6zm0 4c-.8 0-1.6.3-2.1.9L8 13l2.1-2.1c-.5-.6-1.3-.9-2.1-.9z"/></svg>
+          <svg width="26" height="12" viewBox="0 0 26 12" fill="currentColor"><rect x="0" y="1" width="22" height="10" rx="2" stroke="currentColor" stroke-width="1" fill="none"/><rect x="23" y="4" width="2" height="4" rx="1"/><rect x="1.5" y="2.5" width="16" height="7" rx="1" fill="#4CD964"/></svg>
+        </span>
+      </div>
+
+      <!-- Nav Bar -->
+      <div class="nav-bar nav-bar-light">
+        <button class="back-btn">
+          <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 4l-6 6 6 6"/></svg>
+        </button>
+        <span class="nav-title">发现更多玩法</span>
+      </div>
+
+      <!-- Content -->
+      <div class="custom-content">
+        <!-- Theme Card Preview -->
+        <div class="theme-card-preview">
+          <div class="theme-card-header">
+            <span class="theme-card-emoji">💼</span>
+            <span class="theme-card-name">打工人发泄包</span>
+            <span class="theme-card-tag">热门</span>
+          </div>
+          <div class="theme-bubbles-preview">
+            <div class="theme-bubble-mini">加班</div>
+            <div class="theme-bubble-mini">PPT</div>
+            <div class="theme-bubble-mini">开会</div>
+          </div>
+        </div>
+
+        <!-- Arrow down -->
+        <div class="arrow-down-hint">
+          <div class="arrow-down-line"></div>
+          <div class="arrow-down-head"></div>
+        </div>
+
+        <!-- Hint text -->
+        <div class="custom-hint-text">
+          <span class="sparkle-emoji">✨</span> 你也可以创建自己的主题！
+        </div>
+      </div>
+
+      <!-- Bottom -->
+      <div class="custom-bottom">
+        <button class="btn-primary-light">创建我的主题</button>
+        <button class="btn-secondary-light">稍后再说</button>
+      </div>
+
+      <div class="home-indicator-light"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Step dots clickable interaction
+  document.querySelectorAll('.step-dots').forEach(dotsContainer => {
+    const dots = dotsContainer.querySelectorAll('.step-dot');
+    const stepTextEl = dotsContainer.closest('.step-indicator, .trial-content')
+      ? dotsContainer.closest('.step-indicator, .trial-content').querySelector('.step-text')
+      : null;
+
+    dots.forEach((dot, index) => {
+      dot.addEventListener('click', function() {
+        dots.forEach(d => {
+          d.classList.remove('active');
+          d.classList.remove('active-light');
+        });
+
+        // Determine if light or dark mode based on parent screen
+        const screen = this.closest('.light-screen, .custom-screen');
+        if (screen) {
+          this.classList.add('active-light');
+        } else {
+          this.classList.add('active');
+        }
+
+        if (stepTextEl) {
+          stepTextEl.textContent = `步骤 ${index + 1}/3`;
+        }
+      });
+    });
+  });
+</script>
+
+</body>
+</html>

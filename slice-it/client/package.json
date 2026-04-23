@@ -1,0 +1,17 @@
+{
+  "name": "slice-it-client",
+  "version": "1.0.0",
+  "description": "微信小游戏《切你所想》前端项目",
+  "main": "index.js",
+  "scripts": {
+    "build": "cocos build -p wechatgame",
+    "dev": "cocos run -p wechatgame"
+  },
+  "keywords": [
+    "cocos-creator",
+    "wechat-game",
+    "game"
+  ],
+  "author": "",
+  "license": "MIT"
+}

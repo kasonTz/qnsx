@@ -1,0 +1,1737 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>04 - 游戏核心页面</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&display=swap');
+
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  body {
+    font-family: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Helvetica Neue', sans-serif;
+    background: linear-gradient(135deg, #E8F4FD 0%, #E8E0F0 100%);
+    min-height: 100vh;
+    padding: 40px 20px 60px;
+    color: #333;
+  }
+
+  /* Page Title Header */
+  .page-header {
+    text-align: center;
+    margin-bottom: 40px;
+  }
+
+  .page-header h1 {
+    font-size: 28px;
+    font-weight: 700;
+    color: #333;
+    letter-spacing: 2px;
+  }
+
+  .page-header p {
+    font-size: 14px;
+    color: #999;
+    margin-top: 8px;
+  }
+
+  /* Screens Grid - 2 per row for wider landscape frames */
+  .screens-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 40px;
+    max-width: 1700px;
+    margin: 0 auto;
+    justify-items: center;
+  }
+
+  @media (max-width: 1700px) {
+    .screens-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (max-width: 900px) {
+    .screens-grid {
+      grid-template-columns: 1fr;
+      gap: 50px;
+    }
+  }
+
+  /* Screen Label */
+  .screen-label {
+    text-align: center;
+    margin-bottom: 16px;
+    font-size: 16px;
+    font-weight: 500;
+    color: #666;
+  }
+
+  .screen-label span {
+    display: inline-block;
+    background: rgba(255, 107, 53, 0.1);
+    color: #FF6B35;
+    padding: 4px 14px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 500;
+  }
+
+  /* Phone Frame - LANDSCAPE */
+  .phone-frame {
+    width: 812px;
+    height: 375px;
+    background: #000;
+    border-radius: 40px;
+    padding: 10px;
+    position: relative;
+    box-shadow:
+      0 0 0 2px #1a1a2e,
+      0 0 0 4px #333,
+      0 20px 60px rgba(0, 0, 0, 0.3),
+      0 8px 20px rgba(0, 0, 0, 0.2);
+    overflow: hidden;
+  }
+
+  .phone-screen {
+    width: 100%;
+    height: 100%;
+    border-radius: 32px;
+    overflow: hidden;
+    position: relative;
+    background: #fff;
+  }
+
+  /* Notch - landscape (left side, vertical pill for front camera) */
+  .phone-notch {
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 28px;
+    height: 120px;
+    background: #000;
+    border-radius: 14px;
+    z-index: 100;
+  }
+
+  .phone-notch::before {
+    display: none;
+  }
+
+  .phone-notch::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 10px;
+    height: 10px;
+    background: #1a1a2e;
+    border-radius: 50%;
+  }
+
+  /* Status Bar - landscape (compact, left padding for notch) */
+  .status-bar {
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 20px 0 40px;
+    font-size: 11px;
+    font-weight: 600;
+    position: relative;
+    z-index: 50;
+  }
+
+  .status-bar .time {
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  .status-bar .icons {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+    font-size: 11px;
+  }
+
+  /* ============ SCREEN 1: Game In Progress (LANDSCAPE) ============ */
+  .game-screen {
+    background: linear-gradient(180deg, #F0F4FF 0%, #E8E0F8 50%, #F0E8FF 100%);
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* Subtle grid pattern overlay */
+  .game-screen::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+      radial-gradient(circle at 1px 1px, rgba(180, 180, 220, 0.15) 1px, transparent 0);
+    background-size: 30px 30px;
+    z-index: 0;
+  }
+
+  .game-screen .status-bar {
+    color: #fff;
+    z-index: 60;
+  }
+
+  /* HUD Bar - landscape: spread wide across top, left margin for notch */
+  .hud-bar {
+    position: relative;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 4px 20px;
+    background: rgba(30, 30, 60, 0.65);
+    backdrop-filter: blur(10px);
+    margin: 0 8px 0 40px;
+    border-radius: 14px;
+  }
+
+  .hud-score {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .hud-score .score-value {
+    font-size: 24px;
+    font-weight: 900;
+    color: #fff;
+    line-height: 1;
+  }
+
+  .hud-score .combo-badge {
+    display: inline-block;
+    background: linear-gradient(135deg, #FF6B35, #FF8F5E);
+    color: #fff;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 1px 7px;
+    border-radius: 8px;
+    margin-top: 2px;
+    animation: comboPulse 0.8s ease-in-out infinite;
+    letter-spacing: 1px;
+  }
+
+  @keyframes comboPulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.08); }
+  }
+
+  /* Timer with ring - landscape (smaller) */
+  .hud-timer {
+    position: relative;
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .timer-ring {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+  }
+
+  .timer-ring circle {
+    fill: none;
+    stroke-width: 3;
+    stroke-linecap: round;
+    transform: rotate(-90deg);
+    transform-origin: center;
+  }
+
+  .timer-ring .ring-bg {
+    stroke: rgba(255, 255, 255, 0.2);
+  }
+
+  .timer-ring .ring-progress {
+    stroke: #FF6B35;
+    stroke-dasharray: 132;
+    stroke-dashoffset: 33;
+    transition: stroke-dashoffset 1s linear;
+  }
+
+  .timer-text {
+    font-size: 13px;
+    font-weight: 700;
+    color: #fff;
+    z-index: 2;
+  }
+
+  .hud-pause {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.15);
+    border: 1.5px solid rgba(255, 255, 255, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 16px;
+    color: #fff;
+    backdrop-filter: blur(4px);
+  }
+
+  /* Game Area - landscape: wide and shorter */
+  .game-area {
+    flex: 1;
+    position: relative;
+    z-index: 1;
+    margin: 6px 8px;
+    border-radius: 16px;
+    overflow: hidden;
+  }
+
+  /* Floating Bubbles - landscape: spread across wide area */
+  .bubble {
+    position: absolute;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    color: #333;
+    box-shadow:
+      0 4px 15px rgba(0, 0, 0, 0.1),
+      inset 0 -3px 8px rgba(0, 0, 0, 0.05),
+      inset 0 3px 8px rgba(255, 255, 255, 0.6);
+    cursor: pointer;
+    z-index: 5;
+    text-shadow: 0 1px 2px rgba(255, 255, 255, 0.5);
+  }
+
+  .bubble::after {
+    content: '';
+    position: absolute;
+    top: 15%;
+    left: 20%;
+    width: 30%;
+    height: 20%;
+    background: rgba(255, 255, 255, 0.5);
+    border-radius: 50%;
+    transform: rotate(-30deg);
+  }
+
+  /* Bonus bubbles - landscape: 7 bubbles spread across wide area */
+  .bubble-bonus-1 {
+    width: 80px;
+    height: 80px;
+    background: radial-gradient(circle at 35% 35%, #FFD4D9, #FFB3BA);
+    top: 8%;
+    left: 3%;
+    font-size: 16px;
+    animation: float1 4s ease-in-out infinite;
+    transform: rotate(-8deg);
+  }
+
+  .bubble-bonus-2 {
+    width: 100px;
+    height: 100px;
+    background: radial-gradient(circle at 35% 35%, #D6EDFF, #BAE1FF);
+    top: 5%;
+    left: 18%;
+    font-size: 20px;
+    animation: float2 5s ease-in-out infinite;
+    z-index: 6;
+  }
+
+  .bubble-bonus-3 {
+    width: 65px;
+    height: 65px;
+    background: radial-gradient(circle at 35% 35%, #D6FFDF, #BAFFC9);
+    top: 10%;
+    left: 40%;
+    font-size: 14px;
+    animation: float3 3.5s ease-in-out infinite;
+  }
+
+  .bubble-bonus-4 {
+    width: 75px;
+    height: 75px;
+    background: radial-gradient(circle at 35% 35%, #FFFFD6, #FFFFBA);
+    top: 3%;
+    left: 56%;
+    font-size: 15px;
+    animation: float1 4.5s ease-in-out infinite 0.5s;
+  }
+
+  .bubble-bonus-5 {
+    width: 70px;
+    height: 70px;
+    background: radial-gradient(circle at 35% 35%, #E8D4FF, #D4BAFF);
+    top: 15%;
+    left: 72%;
+    font-size: 14px;
+    animation: float2 4.2s ease-in-out infinite 0.3s;
+  }
+
+  .bubble-bonus-6 {
+    width: 60px;
+    height: 60px;
+    background: radial-gradient(circle at 35% 35%, #FFD4E8, #FFBAD4);
+    top: 2%;
+    left: 86%;
+    font-size: 13px;
+    animation: float3 3.8s ease-in-out infinite 0.7s;
+  }
+
+  .bubble-bonus-7 {
+    width: 55px;
+    height: 55px;
+    background: radial-gradient(circle at 35% 35%, #D4FFE8, #BAFFD4);
+    bottom: 8%;
+    left: 10%;
+    font-size: 12px;
+    animation: float1 4s ease-in-out infinite 1s;
+  }
+
+  @keyframes float1 {
+    0%, 100% { transform: translateY(0) rotate(-8deg); }
+    50% { transform: translateY(-8px) rotate(-4deg); }
+  }
+
+  @keyframes float2 {
+    0%, 100% { transform: translateY(0) scale(1); }
+    50% { transform: translateY(-10px) scale(1.03); }
+  }
+
+  @keyframes float3 {
+    0%, 100% { transform: translateY(0) rotate(5deg); }
+    50% { transform: translateY(-6px) rotate(0deg); }
+  }
+
+  /* Penalty bubbles - landscape */
+  .bubble-penalty {
+    border-radius: 16px;
+    box-shadow:
+      0 4px 15px rgba(0, 0, 0, 0.15),
+      inset 0 -3px 8px rgba(0, 0, 0, 0.1),
+      inset 0 3px 8px rgba(255, 255, 255, 0.3);
+  }
+
+  .bubble-penalty::after {
+    display: none;
+  }
+
+  .bubble-penalty-1 {
+    width: 70px;
+    height: 70px;
+    background: linear-gradient(135deg, #FF6666, #FF4444);
+    bottom: 10%;
+    left: 30%;
+    font-size: 14px;
+    color: #fff;
+    animation: penaltyShake 0.6s ease-in-out infinite, float2 4s ease-in-out infinite;
+    box-shadow: 0 0 20px rgba(255, 68, 68, 0.4), 0 4px 15px rgba(0, 0, 0, 0.15);
+  }
+
+  .bubble-penalty-2 {
+    width: 65px;
+    height: 65px;
+    background: linear-gradient(135deg, #FF8855, #FF6B35);
+    bottom: 5%;
+    left: 55%;
+    font-size: 13px;
+    color: #fff;
+    animation: penaltyShake 0.7s ease-in-out infinite 0.2s, float1 3.8s ease-in-out infinite;
+    box-shadow: 0 0 15px rgba(255, 107, 53, 0.3), 0 4px 15px rgba(0, 0, 0, 0.15);
+  }
+
+  .penalty-icon {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    width: 18px;
+    height: 18px;
+    background: #fff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    z-index: 10;
+  }
+
+  @keyframes penaltyShake {
+    0%, 100% { margin-left: 0; }
+    25% { margin-left: -2px; }
+    75% { margin-left: 2px; }
+  }
+
+  /* Slice Trail - landscape: wide diagonal slash */
+  .slice-trail {
+    position: absolute;
+    z-index: 20;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+  }
+
+  .slice-line {
+    position: absolute;
+    top: 20%;
+    left: 10%;
+    width: 70%;
+    height: 4px;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.95), transparent);
+    transform: rotate(-8deg);
+    border-radius: 2px;
+    box-shadow:
+      0 0 10px rgba(255, 255, 255, 0.8),
+      0 0 20px rgba(255, 200, 100, 0.4),
+      0 0 40px rgba(255, 107, 53, 0.2);
+    animation: sliceGlow 1.5s ease-in-out infinite;
+  }
+
+  .slice-line::before {
+    content: '';
+    position: absolute;
+    top: -3px;
+    left: 0;
+    width: 100%;
+    height: 10px;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.4), transparent);
+    border-radius: 5px;
+    filter: blur(3px);
+  }
+
+  /* Second slice line for more action */
+  .slice-line-2 {
+    position: absolute;
+    top: 55%;
+    left: 25%;
+    width: 50%;
+    height: 3px;
+    background: linear-gradient(90deg, transparent, rgba(255, 220, 150, 0.7), rgba(255, 255, 255, 0.8), transparent);
+    transform: rotate(12deg);
+    border-radius: 2px;
+    box-shadow:
+      0 0 8px rgba(255, 220, 150, 0.6),
+      0 0 16px rgba(255, 107, 53, 0.15);
+    animation: sliceGlow 1.5s ease-in-out infinite 0.5s;
+  }
+
+  @keyframes sliceGlow {
+    0%, 100% { opacity: 0.7; }
+    50% { opacity: 1; }
+  }
+
+  /* Floating Score Text - landscape */
+  .float-score {
+    position: absolute;
+    top: 15%;
+    left: 48%;
+    font-size: 20px;
+    font-weight: 900;
+    color: #FF6B35;
+    text-shadow: 0 2px 8px rgba(255, 107, 53, 0.4);
+    z-index: 25;
+    animation: scoreFloatUp 2s ease-out infinite;
+    pointer-events: none;
+  }
+
+  .float-score-2 {
+    position: absolute;
+    top: 50%;
+    left: 70%;
+    font-size: 18px;
+    font-weight: 900;
+    color: #FFD700;
+    text-shadow: 0 2px 8px rgba(255, 215, 0, 0.4);
+    z-index: 25;
+    animation: scoreFloatUp 2s ease-out infinite 0.8s;
+    pointer-events: none;
+  }
+
+  @keyframes scoreFloatUp {
+    0% { opacity: 1; transform: translateY(0) scale(1); }
+    60% { opacity: 1; }
+    100% { opacity: 0; transform: translateY(-30px) scale(1.2); }
+  }
+
+  /* Particle Effects - landscape: spread across wide area */
+  .particles {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 15;
+  }
+
+  .particle {
+    position: absolute;
+    border-radius: 50%;
+    animation: particleBurst 1.5s ease-out infinite;
+  }
+
+  .particle:nth-child(1) {
+    width: 8px; height: 8px;
+    background: #FFB3BA;
+    top: 30%; left: 35%;
+    animation-delay: 0s;
+  }
+  .particle:nth-child(2) {
+    width: 6px; height: 6px;
+    background: #BAE1FF;
+    top: 25%; left: 42%;
+    animation-delay: 0.1s;
+  }
+  .particle:nth-child(3) {
+    width: 10px; height: 10px;
+    background: #FFFFBA;
+    top: 35%; left: 38%;
+    animation-delay: 0.2s;
+  }
+  .particle:nth-child(4) {
+    width: 5px; height: 5px;
+    background: #BAFFC9;
+    top: 28%; left: 45%;
+    animation-delay: 0.15s;
+  }
+  .particle:nth-child(5) {
+    width: 7px; height: 7px;
+    background: #D4BAFF;
+    top: 32%; left: 50%;
+    animation-delay: 0.25s;
+  }
+  .particle:nth-child(6) {
+    width: 4px; height: 4px;
+    background: #FFB3E6;
+    top: 22%; left: 40%;
+    animation-delay: 0.3s;
+  }
+  .particle:nth-child(7) {
+    width: 9px; height: 9px;
+    background: #FF6B35;
+    top: 38%; left: 33%;
+    animation-delay: 0.05s;
+  }
+  .particle:nth-child(8) {
+    width: 6px; height: 6px;
+    background: #fff;
+    top: 40%; left: 48%;
+    animation-delay: 0.2s;
+  }
+  .particle:nth-child(9) {
+    width: 7px; height: 7px;
+    background: #BAFFC9;
+    top: 55%; left: 60%;
+    animation-delay: 0.35s;
+  }
+  .particle:nth-child(10) {
+    width: 5px; height: 5px;
+    background: #FFB3BA;
+    top: 60%; left: 35%;
+    animation-delay: 0.4s;
+  }
+
+  @keyframes particleBurst {
+    0% { opacity: 1; transform: translate(0, 0) scale(1); }
+    100% { opacity: 0; transform: translate(var(--px, 20px), var(--py, -30px)) scale(0); }
+  }
+
+  .particle:nth-child(1) { --px: -25px; --py: -20px; }
+  .particle:nth-child(2) { --px: 30px; --py: -15px; }
+  .particle:nth-child(3) { --px: -15px; --py: 25px; }
+  .particle:nth-child(4) { --px: 20px; --py: 20px; }
+  .particle:nth-child(5) { --px: -30px; --py: 10px; }
+  .particle:nth-child(6) { --px: 15px; --py: -30px; }
+  .particle:nth-child(7) { --px: 35px; --py: -25px; }
+  .particle:nth-child(8) { --px: -20px; --py: 30px; }
+  .particle:nth-child(9) { --px: 25px; --py: -20px; }
+  .particle:nth-child(10) { --px: -30px; --py: 15px; }
+
+  /* Fragment pieces (sliced bubble) - landscape */
+  .fragment {
+    position: absolute;
+    z-index: 12;
+    border-radius: 50% 40% 60% 30%;
+    opacity: 0.7;
+    animation: fragmentFly 2s ease-out infinite;
+  }
+
+  .fragment-1 {
+    width: 45px;
+    height: 40px;
+    background: linear-gradient(135deg, #BAE1FF, #8BC8F0);
+    top: 18%;
+    left: 22%;
+    animation-delay: 0s;
+  }
+
+  .fragment-2 {
+    width: 35px;
+    height: 48px;
+    background: linear-gradient(135deg, #A0D4FF, #BAE1FF);
+    top: 28%;
+    left: 50%;
+    animation-delay: 0.1s;
+  }
+
+  .fragment-3 {
+    width: 30px;
+    height: 30px;
+    background: linear-gradient(135deg, #C8E8FF, #BAE1FF);
+    top: 15%;
+    left: 45%;
+    animation-delay: 0.2s;
+  }
+
+  .fragment-4 {
+    width: 38px;
+    height: 32px;
+    background: linear-gradient(135deg, #FFD4D9, #FFB3BA);
+    top: 45%;
+    left: 65%;
+    animation-delay: 0.15s;
+  }
+
+  @keyframes fragmentFly {
+    0% { opacity: 0.8; transform: translate(0, 0) rotate(0deg) scale(1); }
+    100% { opacity: 0; transform: translate(var(--fx, -30px), var(--fy, -40px)) rotate(var(--fr, 90deg)) scale(0.3); }
+  }
+
+  .fragment-1 { --fx: -40px; --fy: -25px; --fr: -120deg; }
+  .fragment-2 { --fx: 45px; --py: 20px; --fr: 150deg; }
+  .fragment-3 { --fx: -20px; --fy: 30px; --fr: -60deg; }
+  .fragment-4 { --fx: 35px; --fy: -30px; --fr: 100deg; }
+
+  /* Bottom Hint - landscape */
+  .game-hint {
+    position: absolute;
+    bottom: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 11px;
+    color: rgba(255, 255, 255, 0.6);
+    z-index: 10;
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+    animation: hintFade 3s ease-in-out infinite;
+    white-space: nowrap;
+  }
+
+  @keyframes hintFade {
+    0%, 100% { opacity: 0.6; }
+    50% { opacity: 0.3; }
+  }
+
+  /* ============ SCREEN 2: Pause Dialog (LANDSCAPE) ============ */
+  .pause-screen {
+    background: linear-gradient(180deg, #F0F4FF 0%, #E8E0F8 50%, #F0E8FF 100%);
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .pause-screen::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+      radial-gradient(circle at 1px 1px, rgba(180, 180, 220, 0.15) 1px, transparent 0);
+    background-size: 30px 30px;
+    z-index: 0;
+  }
+
+  .pause-screen .status-bar {
+    color: #fff;
+    z-index: 60;
+  }
+
+  /* Dim overlay */
+  .pause-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(6px);
+    z-index: 30;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Pause Modal - landscape: wider, horizontal layout */
+  .pause-modal {
+    background: #fff;
+    border-radius: 24px;
+    padding: 24px 32px;
+    width: 480px;
+    max-width: 90%;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    z-index: 40;
+    animation: modalIn 0.3s ease-out;
+    display: flex;
+    align-items: center;
+    gap: 24px;
+  }
+
+  @keyframes modalIn {
+    from { opacity: 0; transform: scale(0.9) translateY(20px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
+  }
+
+  .pause-modal .modal-left {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    min-width: 100px;
+  }
+
+  .pause-modal .modal-icon {
+    font-size: 32px;
+  }
+
+  .pause-modal .modal-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: #333;
+  }
+
+  .pause-modal .modal-center {
+    flex: 1;
+  }
+
+  .modal-stats {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 12px 16px;
+    background: #F8F9FC;
+    border-radius: 14px;
+    margin-bottom: 14px;
+  }
+
+  .modal-stat-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .modal-stat-label {
+    font-size: 12px;
+    color: #999;
+  }
+
+  .modal-stat-value {
+    font-size: 16px;
+    font-weight: 700;
+    color: #333;
+  }
+
+  .modal-stat-value.score-val {
+    color: #FF6B35;
+  }
+
+  .modal-buttons {
+    display: flex;
+    flex-direction: row;
+    gap: 8px;
+  }
+
+  .modal-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 10px 16px;
+    border-radius: 12px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s;
+    font-family: inherit;
+    flex: 1;
+  }
+
+  .modal-btn-primary {
+    background: linear-gradient(135deg, #FF6B35, #FF8F5E);
+    color: #fff;
+    box-shadow: 0 4px 15px rgba(255, 107, 53, 0.35);
+  }
+
+  .modal-btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(255, 107, 53, 0.45);
+  }
+
+  .modal-btn-secondary {
+    background: #fff;
+    color: #666;
+    border: 1.5px solid #E8E8E8;
+  }
+
+  .modal-btn-secondary:hover {
+    background: #F8F8F8;
+    border-color: #DDD;
+  }
+
+  .modal-btn .btn-icon {
+    font-size: 15px;
+  }
+
+  .modal-hint {
+    font-size: 10px;
+    color: #BBB;
+    text-align: center;
+    line-height: 1.5;
+  }
+
+  /* Ghost HUD for pause screen - landscape, left margin for notch */
+  .pause-ghost-hud {
+    position: relative;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 4px 20px;
+    background: rgba(30, 30, 60, 0.65);
+    backdrop-filter: blur(10px);
+    margin: 0 8px 0 40px;
+    border-radius: 14px;
+    opacity: 0.5;
+  }
+
+  /* Ghost bubbles for pause screen - landscape: spread wide */
+  .pause-ghost-bubble {
+    position: absolute;
+    border-radius: 50%;
+    opacity: 0.25;
+    z-index: 1;
+  }
+
+  .pause-ghost-bubble:nth-child(1) {
+    width: 80px; height: 80px;
+    background: #FFB3BA;
+    top: 12%; left: 5%;
+  }
+  .pause-ghost-bubble:nth-child(2) {
+    width: 100px; height: 100px;
+    background: #BAE1FF;
+    top: 8%; left: 22%;
+  }
+  .pause-ghost-bubble:nth-child(3) {
+    width: 65px; height: 65px;
+    background: #BAFFC9;
+    top: 15%; left: 45%;
+  }
+  .pause-ghost-bubble:nth-child(4) {
+    width: 75px; height: 75px;
+    background: #FFFFBA;
+    bottom: 15%; left: 15%;
+  }
+  .pause-ghost-bubble:nth-child(5) {
+    width: 70px; height: 70px;
+    background: #FF4444;
+    bottom: 20%; right: 10%;
+    border-radius: 16px;
+  }
+  .pause-ghost-bubble:nth-child(6) {
+    width: 60px; height: 60px;
+    background: #D4BAFF;
+    top: 10%; right: 20%;
+  }
+  .pause-ghost-bubble:nth-child(7) {
+    width: 70px; height: 70px;
+    background: #FFD4E8;
+    bottom: 10%; left: 45%;
+  }
+
+  /* ============ SCREEN 3: Frenzy Finish (LANDSCAPE) ============ */
+  .frenzy-screen {
+    background: linear-gradient(180deg, #1a0a2e 0%, #0d1b3e 40%, #162050 70%, #0a0a2a 100%);
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .frenzy-screen .status-bar {
+    color: rgba(255, 255, 255, 0.6);
+    z-index: 60;
+  }
+
+  /* Radiating light rays - landscape: wider spread */
+  .light-rays {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 600px;
+    height: 600px;
+    z-index: 1;
+    animation: raysRotate 20s linear infinite;
+  }
+
+  .ray {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 2px;
+    height: 300px;
+    transform-origin: top center;
+    background: linear-gradient(to bottom, rgba(255, 200, 50, 0.3), transparent);
+  }
+
+  .ray:nth-child(1) { transform: rotate(0deg); }
+  .ray:nth-child(2) { transform: rotate(30deg); }
+  .ray:nth-child(3) { transform: rotate(60deg); }
+  .ray:nth-child(4) { transform: rotate(90deg); }
+  .ray:nth-child(5) { transform: rotate(120deg); }
+  .ray:nth-child(6) { transform: rotate(150deg); }
+  .ray:nth-child(7) { transform: rotate(180deg); }
+  .ray:nth-child(8) { transform: rotate(210deg); }
+  .ray:nth-child(9) { transform: rotate(240deg); }
+  .ray:nth-child(10) { transform: rotate(270deg); }
+  .ray:nth-child(11) { transform: rotate(300deg); }
+  .ray:nth-child(12) { transform: rotate(330deg); }
+
+  @keyframes raysRotate {
+    from { transform: translate(-50%, -50%) rotate(0deg); }
+    to { transform: translate(-50%, -50%) rotate(360deg); }
+  }
+
+  /* Screen edge glow */
+  .edge-glow {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    pointer-events: none;
+    box-shadow:
+      inset 0 0 80px rgba(255, 107, 53, 0.3),
+      inset 0 0 160px rgba(255, 165, 0, 0.15),
+      inset 0 0 40px rgba(255, 200, 50, 0.1);
+    animation: edgePulse 2s ease-in-out infinite;
+  }
+
+  @keyframes edgePulse {
+    0%, 100% { opacity: 0.7; }
+    50% { opacity: 1; }
+  }
+
+  /* Countdown badge - landscape: positioned left of center */
+  .frenzy-countdown {
+    position: relative;
+    z-index: 20;
+    margin-top: 10px;
+    margin-bottom: 0;
+  }
+
+  .countdown-circle {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #FF6B35, #FF4444);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow:
+      0 0 30px rgba(255, 107, 53, 0.6),
+      0 0 60px rgba(255, 68, 68, 0.3),
+      0 0 100px rgba(255, 107, 53, 0.15);
+    animation: countdownPulse 1s ease-in-out infinite;
+  }
+
+  .countdown-number {
+    font-size: 32px;
+    font-weight: 900;
+    color: #fff;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+  }
+
+  @keyframes countdownPulse {
+    0%, 100% { transform: scale(1); box-shadow: 0 0 30px rgba(255, 107, 53, 0.6), 0 0 60px rgba(255, 68, 68, 0.3); }
+    50% { transform: scale(1.1); box-shadow: 0 0 50px rgba(255, 107, 53, 0.8), 0 0 100px rgba(255, 68, 68, 0.5); }
+  }
+
+  /* Frenzy layout - landscape: horizontal arrangement */
+  .frenzy-content {
+    position: relative;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 30px;
+    flex: 1;
+    width: 100%;
+  }
+
+  /* Giant target - landscape */
+  .frenzy-target {
+    position: relative;
+    z-index: 10;
+  }
+
+  .giant-bubble {
+    width: 160px;
+    height: 160px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 35%, #FFE88A, #FFD700, #FFA500);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 40px;
+    font-weight: 900;
+    color: #fff;
+    text-shadow: 0 3px 10px rgba(0, 0, 0, 0.3), 0 0 30px rgba(255, 215, 0, 0.5);
+    box-shadow:
+      0 0 40px rgba(255, 215, 0, 0.5),
+      0 0 80px rgba(255, 165, 0, 0.3),
+      0 0 120px rgba(255, 215, 0, 0.15),
+      inset 0 -5px 15px rgba(0, 0, 0, 0.1),
+      inset 0 5px 15px rgba(255, 255, 255, 0.4);
+    animation: giantPulse 1.5s ease-in-out infinite;
+    position: relative;
+  }
+
+  .giant-bubble::before {
+    content: '';
+    position: absolute;
+    top: 12%;
+    left: 18%;
+    width: 35%;
+    height: 22%;
+    background: rgba(255, 255, 255, 0.45);
+    border-radius: 50%;
+    transform: rotate(-25deg);
+  }
+
+  /* Sparkle overlay */
+  .giant-bubble::after {
+    content: '';
+    position: absolute;
+    inset: -10px;
+    border-radius: 50%;
+    background: conic-gradient(
+      from 0deg,
+      transparent 0deg,
+      rgba(255, 255, 200, 0.3) 30deg,
+      transparent 60deg,
+      rgba(255, 255, 200, 0.2) 120deg,
+      transparent 150deg,
+      rgba(255, 255, 200, 0.3) 210deg,
+      transparent 240deg,
+      rgba(255, 255, 200, 0.2) 300deg,
+      transparent 330deg
+    );
+    animation: sparkleRotate 4s linear infinite;
+    z-index: -1;
+  }
+
+  @keyframes sparkleRotate {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+
+  @keyframes giantPulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.06); }
+  }
+
+  /* Slash marks on target - landscape */
+  .slash-marks {
+    position: absolute;
+    inset: 0;
+    z-index: 15;
+    pointer-events: none;
+  }
+
+  .slash {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 180px;
+    height: 4px;
+    transform-origin: center;
+    border-radius: 2px;
+  }
+
+  .slash::before {
+    content: '';
+    display: block;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.8), transparent);
+    border-radius: 2px;
+    box-shadow: 0 0 8px rgba(255, 255, 255, 0.5);
+  }
+
+  .slash:nth-child(1) { transform: translate(-50%, -50%) rotate(-25deg); }
+  .slash:nth-child(2) { transform: translate(-50%, -50%) rotate(15deg); }
+  .slash:nth-child(3) { transform: translate(-50%, -50%) rotate(-50deg); }
+
+  /* Floating scores in frenzy - landscape: spread wider */
+  .frenzy-scores {
+    position: absolute;
+    z-index: 20;
+    pointer-events: none;
+    inset: 0;
+  }
+
+  .frenzy-score {
+    position: absolute;
+    font-weight: 900;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  }
+
+  .frenzy-score-1 {
+    top: 20%;
+    left: 10%;
+    font-size: 24px;
+    color: #FFD700;
+    animation: frenzyScoreUp 2s ease-out infinite;
+  }
+
+  .frenzy-score-2 {
+    top: 15%;
+    right: 8%;
+    font-size: 20px;
+    color: #FF6B35;
+    animation: frenzyScoreUp 2s ease-out infinite 0.4s;
+  }
+
+  .frenzy-score-3 {
+    bottom: 20%;
+    left: 12%;
+    font-size: 26px;
+    color: #FFD700;
+    animation: frenzyScoreUp 2s ease-out infinite 0.8s;
+  }
+
+  .frenzy-score-4 {
+    bottom: 15%;
+    right: 10%;
+    font-size: 18px;
+    color: #FFA500;
+    animation: frenzyScoreUp 2s ease-out infinite 1.2s;
+  }
+
+  .frenzy-score-5 {
+    top: 40%;
+    left: 5%;
+    font-size: 22px;
+    color: #FF6B35;
+    animation: frenzyScoreUp 2s ease-out infinite 0.6s;
+  }
+
+  .frenzy-score-6 {
+    top: 35%;
+    right: 5%;
+    font-size: 20px;
+    color: #FFD700;
+    animation: frenzyScoreUp 2s ease-out infinite 1s;
+  }
+
+  @keyframes frenzyScoreUp {
+    0% { opacity: 1; transform: translateY(0) scale(1); }
+    50% { opacity: 1; transform: translateY(-20px) scale(1.15); }
+    100% { opacity: 0; transform: translateY(-45px) scale(0.8); }
+  }
+
+  /* Frenzy particles - landscape: spread across wide area */
+  .frenzy-particles {
+    position: absolute;
+    inset: 0;
+    z-index: 8;
+    pointer-events: none;
+  }
+
+  .frenzy-particle {
+    position: absolute;
+    border-radius: 50%;
+    animation: frenzyParticle 2s ease-out infinite;
+  }
+
+  .frenzy-particle:nth-child(1) {
+    width: 10px; height: 10px;
+    background: #FFD700;
+    top: 35%; left: 20%;
+    animation-delay: 0s;
+    --fpx: -50px; --fpy: -40px;
+  }
+  .frenzy-particle:nth-child(2) {
+    width: 8px; height: 8px;
+    background: #FF6B35;
+    top: 40%; right: 15%;
+    animation-delay: 0.2s;
+    --fpx: 40px; --fpy: -50px;
+  }
+  .frenzy-particle:nth-child(3) {
+    width: 12px; height: 12px;
+    background: #FFA500;
+    top: 55%; left: 15%;
+    animation-delay: 0.4s;
+    --fpx: -60px; --fpy: 30px;
+  }
+  .frenzy-particle:nth-child(4) {
+    width: 6px; height: 6px;
+    background: #FFD700;
+    top: 30%; right: 20%;
+    animation-delay: 0.1s;
+    --fpx: 50px; --fpy: 40px;
+  }
+  .frenzy-particle:nth-child(5) {
+    width: 9px; height: 9px;
+    background: #FF4444;
+    top: 60%; left: 30%;
+    animation-delay: 0.3s;
+    --fpx: -30px; --fpy: -60px;
+  }
+  .frenzy-particle:nth-child(6) {
+    width: 7px; height: 7px;
+    background: #FFD700;
+    top: 25%; left: 35%;
+    animation-delay: 0.5s;
+    --fpx: 60px; --fpy: -20px;
+  }
+  .frenzy-particle:nth-child(7) {
+    width: 11px; height: 11px;
+    background: #FFA500;
+    top: 65%; right: 25%;
+    animation-delay: 0.15s;
+    --fpx: 45px; --fpy: 50px;
+  }
+  .frenzy-particle:nth-child(8) {
+    width: 5px; height: 5px;
+    background: #fff;
+    top: 45%; left: 25%;
+    animation-delay: 0.35s;
+    --fpx: -40px; --fpy: 55px;
+  }
+  .frenzy-particle:nth-child(9) {
+    width: 8px; height: 8px;
+    background: #FFD700;
+    top: 50%; right: 18%;
+    animation-delay: 0.6s;
+    --fpx: 55px; --fpy: -45px;
+  }
+  .frenzy-particle:nth-child(10) {
+    width: 6px; height: 6px;
+    background: #FF6B35;
+    top: 20%; left: 50%;
+    animation-delay: 0.45s;
+    --fpx: -55px; --fpy: -35px;
+  }
+  .frenzy-particle:nth-child(11) {
+    width: 7px; height: 7px;
+    background: #FFD700;
+    top: 70%; left: 45%;
+    animation-delay: 0.55s;
+    --fpx: 35px; --fpy: -40px;
+  }
+  .frenzy-particle:nth-child(12) {
+    width: 9px; height: 9px;
+    background: #FFA500;
+    top: 15%; right: 30%;
+    animation-delay: 0.25s;
+    --fpx: -45px; --fpy: 35px;
+  }
+
+  @keyframes frenzyParticle {
+    0% { opacity: 1; transform: translate(0, 0) scale(1); }
+    100% { opacity: 0; transform: translate(var(--fpx, 30px), var(--fpy, -40px)) scale(0); }
+  }
+
+  /* Bottom frenzy text - landscape */
+  .frenzy-bottom-text {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 20;
+    text-align: center;
+  }
+
+  .frenzy-label {
+    font-size: 26px;
+    font-weight: 900;
+    color: #fff;
+    text-shadow:
+      0 0 20px rgba(255, 107, 53, 0.6),
+      0 0 40px rgba(255, 107, 53, 0.3),
+      0 2px 4px rgba(0, 0, 0, 0.3);
+    letter-spacing: 6px;
+    animation: frenzyTextPulse 1s ease-in-out infinite;
+  }
+
+  @keyframes frenzyTextPulse {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.05); opacity: 0.9; }
+  }
+
+  .frenzy-sublabel {
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.5);
+    margin-top: 4px;
+    letter-spacing: 2px;
+  }
+
+  /* Frenzy side score display - landscape */
+  .frenzy-side-info {
+    position: absolute;
+    top: 50%;
+    right: 20px;
+    transform: translateY(-50%);
+    z-index: 20;
+    text-align: right;
+  }
+
+  .frenzy-side-score {
+    font-size: 14px;
+    font-weight: 700;
+    color: rgba(255, 255, 255, 0.5);
+    margin-bottom: 4px;
+  }
+
+  .frenzy-side-score-value {
+    font-size: 28px;
+    font-weight: 900;
+    color: #FFD700;
+    text-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+  }
+
+  /* Home indicator - landscape */
+  .home-indicator {
+    position: absolute;
+    bottom: 6px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 134px;
+    height: 4px;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 3px;
+    z-index: 100;
+  }
+
+  .home-indicator-light {
+    background: rgba(255, 255, 255, 0.4);
+  }
+</style>
+</head>
+<body>
+
+  <!-- Page Title Header -->
+  <div class="page-header">
+    <h1>04 - 游戏核心页面</h1>
+    <p>切你所想 / Slice It - Core Game Screens</p>
+  </div>
+
+  <!-- Screens Grid -->
+  <div class="screens-grid">
+
+    <!-- ==================== SCREEN 1: Game In Progress (LANDSCAPE) ==================== -->
+    <div>
+      <div class="screen-label">
+        游戏进行页 <span>Game In Progress</span>
+      </div>
+      <div class="phone-frame">
+        <div class="phone-screen">
+          <div class="phone-notch"></div>
+          <div class="game-screen">
+            <!-- Status Bar -->
+            <div class="status-bar">
+              <span class="time">9:41</span>
+              <span class="icons">
+                <svg width="16" height="12" viewBox="0 0 16 12"><rect x="0" y="5" width="3" height="7" rx="1" fill="white"/><rect x="4.5" y="3" width="3" height="9" rx="1" fill="white"/><rect x="9" y="1" width="3" height="11" rx="1" fill="white"/><rect x="13.5" y="0" width="3" height="12" rx="1" fill="white" opacity="0.3"/></svg>
+                <svg width="16" height="12" viewBox="0 0 16 12"><path d="M8 2C5.5 2 3.2 3 1.5 4.7L0 3.2C2.1 1.2 4.9 0 8 0s5.9 1.2 8 3.2L14.5 4.7C12.8 3 10.5 2 8 2z" fill="white"/><path d="M8 5.5C6.3 5.5 4.8 6.2 3.7 7.3L2.2 5.8C3.7 4.3 5.7 3.5 8 3.5s4.3.8 5.8 2.3L12.3 7.3C11.2 6.2 9.7 5.5 8 5.5z" fill="white"/><circle cx="8" cy="10" r="2" fill="white"/></svg>
+                <svg width="26" height="12" viewBox="0 0 26 12"><rect x="0" y="1" width="22" height="10" rx="2" stroke="white" stroke-width="1" fill="none"/><rect x="23" y="3.5" width="2" height="5" rx="1" fill="white"/><rect x="1.5" y="2.5" width="16" height="7" rx="1" fill="white"/></svg>
+              </span>
+            </div>
+
+            <!-- HUD Bar - landscape: spread across wide top -->
+            <div class="hud-bar">
+              <div class="hud-score">
+                <div class="score-value">280</div>
+                <div class="combo-badge">x5 COMBO</div>
+              </div>
+              <div class="hud-timer">
+                <svg class="timer-ring" viewBox="0 0 48 48">
+                  <circle class="ring-bg" cx="24" cy="24" r="21"/>
+                  <circle class="ring-progress" cx="24" cy="24" r="21"/>
+                </svg>
+                <span class="timer-text">01:23</span>
+              </div>
+              <div class="hud-pause">&#9208;</div>
+            </div>
+
+            <!-- Game Area - landscape: wide playing field -->
+            <div class="game-area">
+              <!-- Bonus Bubbles - 7 bubbles spread across wide landscape area -->
+              <div class="bubble bubble-bonus-1">加班</div>
+              <div class="bubble bubble-bonus-2">开会</div>
+              <div class="bubble bubble-bonus-3">周一</div>
+              <div class="bubble bubble-bonus-4">PPT</div>
+              <div class="bubble bubble-bonus-5">KPI</div>
+              <div class="bubble bubble-bonus-6">日报</div>
+              <div class="bubble bubble-bonus-7">Bug</div>
+
+              <!-- Penalty Bubbles -->
+              <div class="bubble bubble-penalty bubble-penalty-1">
+                奖金
+                <div class="penalty-icon">&#9888;</div>
+              </div>
+              <div class="bubble bubble-penalty bubble-penalty-2">
+                放假
+                <div class="penalty-icon">&#9888;</div>
+              </div>
+
+              <!-- Fragment pieces (sliced bubble remains) -->
+              <div class="fragment fragment-1"></div>
+              <div class="fragment fragment-2"></div>
+              <div class="fragment fragment-3"></div>
+              <div class="fragment fragment-4"></div>
+
+              <!-- Slice Trail - two slash lines for more action -->
+              <div class="slice-trail">
+                <div class="slice-line"></div>
+                <div class="slice-line-2"></div>
+              </div>
+
+              <!-- Floating Scores -->
+              <div class="float-score">+10</div>
+              <div class="float-score-2">+20</div>
+
+              <!-- Particles - 10 particles spread across wide area -->
+              <div class="particles">
+                <div class="particle"></div>
+                <div class="particle"></div>
+                <div class="particle"></div>
+                <div class="particle"></div>
+                <div class="particle"></div>
+                <div class="particle"></div>
+                <div class="particle"></div>
+                <div class="particle"></div>
+                <div class="particle"></div>
+                <div class="particle"></div>
+              </div>
+            </div>
+
+            <!-- Bottom Hint -->
+            <div class="game-hint">滑动屏幕切割目标物</div>
+
+            <div class="home-indicator home-indicator-light"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== SCREEN 2: Pause Dialog (LANDSCAPE) ==================== -->
+    <div>
+      <div class="screen-label">
+        暂停弹窗 <span>Pause Dialog</span>
+      </div>
+      <div class="phone-frame">
+        <div class="phone-screen">
+          <div class="phone-notch"></div>
+          <div class="pause-screen">
+            <!-- Status Bar -->
+            <div class="status-bar">
+              <span class="time">9:41</span>
+              <span class="icons">
+                <svg width="16" height="12" viewBox="0 0 16 12"><rect x="0" y="5" width="3" height="7" rx="1" fill="white"/><rect x="4.5" y="3" width="3" height="9" rx="1" fill="white"/><rect x="9" y="1" width="3" height="11" rx="1" fill="white"/><rect x="13.5" y="0" width="3" height="12" rx="1" fill="white" opacity="0.3"/></svg>
+                <svg width="16" height="12" viewBox="0 0 16 12"><path d="M8 2C5.5 2 3.2 3 1.5 4.7L0 3.2C2.1 1.2 4.9 0 8 0s5.9 1.2 8 3.2L14.5 4.7C12.8 3 10.5 2 8 2z" fill="white"/><path d="M8 5.5C6.3 5.5 4.8 6.2 3.7 7.3L2.2 5.8C3.7 4.3 5.7 3.5 8 3.5s4.3.8 5.8 2.3L12.3 7.3C11.2 6.2 9.7 5.5 8 5.5z" fill="white"/><circle cx="8" cy="10" r="2" fill="white"/></svg>
+                <svg width="26" height="12" viewBox="0 0 26 12"><rect x="0" y="1" width="22" height="10" rx="2" stroke="white" stroke-width="1" fill="none"/><rect x="23" y="3.5" width="2" height="5" rx="1" fill="white"/><rect x="1.5" y="2.5" width="16" height="7" rx="1" fill="white"/></svg>
+              </span>
+            </div>
+
+            <!-- Ghost HUD - landscape -->
+            <div class="pause-ghost-hud">
+              <div class="hud-score">
+                <div class="score-value" style="color:#fff">280</div>
+                <div class="combo-badge">x5 COMBO</div>
+              </div>
+              <div class="hud-timer">
+                <svg class="timer-ring" viewBox="0 0 48 48">
+                  <circle class="ring-bg" cx="24" cy="24" r="21"/>
+                  <circle class="ring-progress" cx="24" cy="24" r="21"/>
+                </svg>
+                <span class="timer-text">01:23</span>
+              </div>
+              <div class="hud-pause">&#9208;</div>
+            </div>
+
+            <!-- Ghost Bubbles in background - landscape: spread wide -->
+            <div class="pause-ghost-bubble"></div>
+            <div class="pause-ghost-bubble"></div>
+            <div class="pause-ghost-bubble"></div>
+            <div class="pause-ghost-bubble"></div>
+            <div class="pause-ghost-bubble"></div>
+            <div class="pause-ghost-bubble"></div>
+            <div class="pause-ghost-bubble"></div>
+
+            <!-- Pause Overlay + Modal - landscape: horizontal layout -->
+            <div class="pause-overlay">
+              <div class="pause-modal">
+                <div class="modal-left">
+                  <div class="modal-icon">&#9208;</div>
+                  <div class="modal-title">游戏暂停</div>
+                </div>
+                <div class="modal-center">
+                  <div class="modal-stats">
+                    <div class="modal-stat-row">
+                      <span class="modal-stat-label">当前得分</span>
+                      <span class="modal-stat-value score-val">280</span>
+                    </div>
+                    <div class="modal-stat-row">
+                      <span class="modal-stat-label">剩余时间</span>
+                      <span class="modal-stat-value">01:23</span>
+                    </div>
+                  </div>
+                  <div class="modal-buttons">
+                    <button class="modal-btn modal-btn-primary">
+                      <span class="btn-icon">&#9654;</span>
+                      继续
+                    </button>
+                    <button class="modal-btn modal-btn-secondary">
+                      <span class="btn-icon">&#128260;</span>
+                      重来
+                    </button>
+                    <button class="modal-btn modal-btn-secondary">
+                      <span class="btn-icon">&#127968;</span>
+                      首页
+                    </button>
+                  </div>
+                  <div class="modal-hint">提示：退出后本局成绩不会保存</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="home-indicator home-indicator-light"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== SCREEN 3: Frenzy Finish (LANDSCAPE) ==================== -->
+    <div>
+      <div class="screen-label">
+        终极一击页 <span>Frenzy Finish</span>
+      </div>
+      <div class="phone-frame">
+        <div class="phone-screen">
+          <div class="phone-notch"></div>
+          <div class="frenzy-screen">
+            <!-- Status Bar -->
+            <div class="status-bar">
+              <span class="time">9:41</span>
+              <span class="icons">
+                <svg width="16" height="12" viewBox="0 0 16 12"><rect x="0" y="5" width="3" height="7" rx="1" fill="white" opacity="0.6"/><rect x="4.5" y="3" width="3" height="9" rx="1" fill="white" opacity="0.6"/><rect x="9" y="1" width="3" height="11" rx="1" fill="white" opacity="0.6"/><rect x="13.5" y="0" width="3" height="12" rx="1" fill="white" opacity="0.2"/></svg>
+                <svg width="16" height="12" viewBox="0 0 16 12"><path d="M8 2C5.5 2 3.2 3 1.5 4.7L0 3.2C2.1 1.2 4.9 0 8 0s5.9 1.2 8 3.2L14.5 4.7C12.8 3 10.5 2 8 2z" fill="white" opacity="0.6"/><path d="M8 5.5C6.3 5.5 4.8 6.2 3.7 7.3L2.2 5.8C3.7 4.3 5.7 3.5 8 3.5s4.3.8 5.8 2.3L12.3 7.3C11.2 6.2 9.7 5.5 8 5.5z" fill="white" opacity="0.6"/><circle cx="8" cy="10" r="2" fill="white" opacity="0.6"/></svg>
+                <svg width="26" height="12" viewBox="0 0 26 12"><rect x="0" y="1" width="22" height="10" rx="2" stroke="white" stroke-width="1" fill="none" opacity="0.6"/><rect x="23" y="3.5" width="2" height="5" rx="1" fill="white" opacity="0.6"/><rect x="1.5" y="2.5" width="16" height="7" rx="1" fill="white" opacity="0.6"/></svg>
+              </span>
+            </div>
+
+            <!-- Light Rays - wider spread in landscape -->
+            <div class="light-rays">
+              <div class="ray"></div>
+              <div class="ray"></div>
+              <div class="ray"></div>
+              <div class="ray"></div>
+              <div class="ray"></div>
+              <div class="ray"></div>
+              <div class="ray"></div>
+              <div class="ray"></div>
+              <div class="ray"></div>
+              <div class="ray"></div>
+              <div class="ray"></div>
+              <div class="ray"></div>
+            </div>
+
+            <!-- Edge Glow -->
+            <div class="edge-glow"></div>
+
+            <!-- Frenzy Particles - 12 particles spread wide -->
+            <div class="frenzy-particles">
+              <div class="frenzy-particle"></div>
+              <div class="frenzy-particle"></div>
+              <div class="frenzy-particle"></div>
+              <div class="frenzy-particle"></div>
+              <div class="frenzy-particle"></div>
+              <div class="frenzy-particle"></div>
+              <div class="frenzy-particle"></div>
+              <div class="frenzy-particle"></div>
+              <div class="frenzy-particle"></div>
+              <div class="frenzy-particle"></div>
+              <div class="frenzy-particle"></div>
+              <div class="frenzy-particle"></div>
+            </div>
+
+            <!-- Countdown Badge - landscape: top center -->
+            <div class="frenzy-countdown">
+              <div class="countdown-circle">
+                <span class="countdown-number">3</span>
+              </div>
+            </div>
+
+            <!-- Frenzy Content - landscape: horizontal layout -->
+            <div class="frenzy-content">
+              <!-- Giant Target -->
+              <div class="frenzy-target">
+                <div class="giant-bubble">加班</div>
+                <div class="slash-marks">
+                  <div class="slash"></div>
+                  <div class="slash"></div>
+                  <div class="slash"></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Floating Scores - 每次切割+10分（不触发Combo） -->
+            <div class="frenzy-scores">
+              <div class="frenzy-score frenzy-score-1">+10</div>
+              <div class="frenzy-score frenzy-score-2">+10</div>
+              <div class="frenzy-score frenzy-score-3">+10</div>
+              <div class="frenzy-score frenzy-score-4">+10</div>
+              <div class="frenzy-score frenzy-score-5">+10</div>
+              <div class="frenzy-score frenzy-score-6">+10</div>
+            </div>
+
+            <!-- Side score display - landscape -->
+            <div class="frenzy-side-info">
+              <div class="frenzy-side-score">FRENZY</div>
+              <div class="frenzy-side-score-value">+10/刀</div>
+            </div>
+
+            <!-- Bottom Text -->
+            <div class="frenzy-bottom-text">
+              <div class="frenzy-label">疯狂切割！</div>
+              <div class="frenzy-sublabel">FRENZY MODE</div>
+            </div>
+
+            <div class="home-indicator" style="background: rgba(255,255,255,0.2);"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</body>
+</html>

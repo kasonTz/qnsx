@@ -1,0 +1,1098 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>05 - 结果与设置 | 切你所想 原型设计</title>
+    <link href="https://fonts.googleapis.com/css2?family=ZCOOL+KuaiLe&display=swap" rel="stylesheet">
+    <style>
+        /* ========== Reset & Base ========== */
+        *, *::before, *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'ZCOOL KuaiLe', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            background: #f0f2f5;
+            color: #333;
+            min-height: 100vh;
+            padding: 40px 20px 60px;
+        }
+
+        /* ========== Page Header ========== */
+        .page-header {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        .page-header h1 {
+            font-size: 32px;
+            color: #333;
+            font-weight: normal;
+            letter-spacing: 2px;
+        }
+
+        .page-header h1 span {
+            color: #FF6B35;
+        }
+
+        .page-header p {
+            font-size: 14px;
+            color: #999;
+            margin-top: 8px;
+            font-family: 'PingFang SC', sans-serif;
+        }
+
+        /* ========== Phone Grid ========== */
+        .phone-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 50px 40px;
+            max-width: 1740px;
+            margin: 0 auto;
+            justify-items: center;
+        }
+
+        @media (max-width: 1720px) {
+            .phone-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 900px) {
+            .phone-grid {
+                grid-template-columns: 1fr;
+                gap: 40px;
+            }
+            body {
+                padding: 20px 10px 40px;
+            }
+        }
+
+        /* ========== Screen Label ========== */
+        .screen-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .screen-label {
+            font-size: 16px;
+            color: #666;
+            margin-bottom: 16px;
+            font-family: 'PingFang SC', sans-serif;
+            letter-spacing: 1px;
+        }
+
+        .screen-label .label-num {
+            color: #FF6B35;
+            font-weight: bold;
+            margin-right: 4px;
+        }
+
+        /* ========== iPhone Frame (Landscape) ========== */
+        .phone-frame {
+            width: 812px;
+            height: 375px;
+            background: #1a1a2e;
+            border-radius: 40px;
+            padding: 12px;
+            position: relative;
+            box-shadow:
+                0 0 0 2px #333,
+                0 0 0 4px #1a1a2e,
+                0 20px 60px rgba(0, 0, 0, 0.3),
+                0 8px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Side buttons - adjusted for landscape */
+        .phone-frame::before {
+            content: '';
+            position: absolute;
+            right: -3px;
+            top: 120px;
+            width: 4px;
+            height: 35px;
+            background: #333;
+            border-radius: 0 4px 4px 0;
+        }
+
+        .phone-frame::after {
+            content: '';
+            position: absolute;
+            left: -3px;
+            top: 100px;
+            width: 4px;
+            height: 25px;
+            background: #333;
+            border-radius: 4px 0 0 4px;
+            box-shadow: 0 40px 0 #333, 0 70px 0 #333;
+        }
+
+        /* ========== Screen Content Area ========== */
+        .phone-screen {
+            width: 100%;
+            height: 100%;
+            border-radius: 32px;
+            overflow: hidden;
+            position: relative;
+            background: linear-gradient(135deg, #E8F4FD 0%, #E8E0F0 100%);
+        }
+
+        /* ========== Status Bar ========== */
+        .status-bar {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 30px 0 46px;
+            z-index: 100;
+            font-size: 14px;
+            font-weight: 600;
+            color: #333;
+            font-family: 'PingFang SC', sans-serif;
+        }
+
+        .status-bar .time {
+            font-size: 15px;
+        }
+
+        .status-bar .icons {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+        }
+
+        .status-bar.light {
+            color: #fff;
+        }
+
+        /* Notch - landscape: left side vertical pill (camera) */
+        .notch {
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 28px;
+            height: 120px;
+            background: #1a1a2e;
+            border-radius: 0 14px 14px 0;
+            z-index: 101;
+        }
+
+        .notch::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 10px;
+            height: 10px;
+            background: #2a2a4e;
+            border-radius: 50%;
+        }
+
+        /* Home indicator */
+        .home-indicator {
+            position: absolute;
+            bottom: 8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 134px;
+            height: 5px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 3px;
+            z-index: 100;
+        }
+
+        .home-indicator.light {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        /* ================================================================
+           SCREEN 1: Game Result Page (Landscape Layout)
+           ================================================================ */
+        .result-screen {
+            display: flex;
+            flex-direction: row;
+            align-items: stretch;
+            position: relative;
+            width: 100%;
+            height: 100%;
+            padding: 54px 16px 20px;
+            overflow: hidden;
+        }
+
+        /* Celebration background */
+        .result-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(160deg, #E8F4FD 0%, #E8E0F0 40%, #F0E6FF 70%, #FDE8E0 100%);
+            z-index: 0;
+        }
+
+        /* Confetti particles */
+        .confetti-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 1;
+            pointer-events: none;
+            overflow: hidden;
+        }
+
+        .confetti {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            border-radius: 2px;
+            opacity: 0;
+            animation: confettiFall linear infinite;
+        }
+
+        .confetti.c1 { background: #FFB3BA; left: 10%; width: 6px; height: 10px; border-radius: 3px; animation-duration: 4s; animation-delay: 0s; }
+        .confetti.c2 { background: #BAE1FF; left: 25%; width: 8px; height: 6px; animation-duration: 5s; animation-delay: 0.5s; }
+        .confetti.c3 { background: #BAFFC9; left: 40%; width: 5px; height: 12px; border-radius: 3px; animation-duration: 3.5s; animation-delay: 1s; }
+        .confetti.c4 { background: #FFFFBA; left: 55%; width: 10px; height: 6px; animation-duration: 4.5s; animation-delay: 0.3s; }
+        .confetti.c5 { background: #D4BAFF; left: 70%; width: 6px; height: 8px; border-radius: 3px; animation-duration: 3.8s; animation-delay: 0.8s; }
+        .confetti.c6 { background: #FFB3E6; left: 85%; width: 7px; height: 7px; border-radius: 50%; animation-duration: 4.2s; animation-delay: 1.2s; }
+        .confetti.c7 { background: #FFDFBA; left: 15%; width: 9px; height: 5px; animation-duration: 5.5s; animation-delay: 0.2s; }
+        .confetti.c8 { background: #FF6B35; left: 50%; width: 5px; height: 5px; border-radius: 50%; animation-duration: 3.2s; animation-delay: 0.7s; }
+        .confetti.c9 { background: #FFB3BA; left: 35%; width: 7px; height: 9px; border-radius: 2px; animation-duration: 4.8s; animation-delay: 1.5s; }
+        .confetti.c10 { background: #BAE1FF; left: 65%; width: 6px; height: 6px; border-radius: 50%; animation-duration: 3.6s; animation-delay: 0.4s; }
+        .confetti.c11 { background: #BAFFC9; left: 80%; width: 8px; height: 8px; border-radius: 2px; animation-duration: 5.2s; animation-delay: 1.8s; }
+        .confetti.c12 { background: #D4BAFF; left: 5%; width: 5px; height: 10px; border-radius: 3px; animation-duration: 4.1s; animation-delay: 0.9s; }
+        .confetti.c13 { background: #FFFFBA; left: 92%; width: 7px; height: 7px; border-radius: 50%; animation-duration: 3.9s; animation-delay: 1.1s; }
+        .confetti.c14 { background: #FFB3E6; left: 45%; width: 6px; height: 11px; border-radius: 2px; animation-duration: 4.6s; animation-delay: 0.6s; }
+        .confetti.c15 { background: #FFDFBA; left: 75%; width: 9px; height: 6px; animation-duration: 5.0s; animation-delay: 1.3s; }
+
+        @keyframes confettiFall {
+            0% {
+                transform: translateY(-20px) rotate(0deg);
+                opacity: 0;
+            }
+            10% {
+                opacity: 0.8;
+            }
+            90% {
+                opacity: 0.6;
+            }
+            100% {
+                transform: translateY(390px) rotate(720deg);
+                opacity: 0;
+            }
+        }
+
+        /* Result content wrapper - horizontal layout for landscape */
+        .result-content {
+            position: relative;
+            z-index: 10;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            gap: 16px;
+        }
+
+        /* Left column: score + stats */
+        .result-left {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            gap: 14px;
+            flex-shrink: 0;
+        }
+
+        /* Top section: theme info */
+        .result-theme {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 4px;
+        }
+
+        .result-theme-icon {
+            width: 28px;
+            height: 28px;
+            background: rgba(255, 107, 53, 0.12);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+
+        .result-theme-name {
+            font-size: 13px;
+            color: #333;
+        }
+
+        .result-duration {
+            display: inline-flex;
+            align-items: center;
+            gap: 3px;
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(10px);
+            padding: 3px 10px;
+            border-radius: 16px;
+            font-size: 11px;
+            color: #888;
+            font-family: 'PingFang SC', sans-serif;
+            margin-bottom: 8px;
+        }
+
+        .result-duration svg {
+            width: 10px;
+            height: 10px;
+        }
+
+        /* Score section */
+        .score-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+        }
+
+        .score-label {
+            font-size: 11px;
+            color: #999;
+            font-family: 'PingFang SC', sans-serif;
+            margin-bottom: 2px;
+        }
+
+        .score-number {
+            font-size: 56px;
+            color: #333;
+            line-height: 1;
+            letter-spacing: -2px;
+            position: relative;
+            text-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        }
+
+        /* New record badge */
+        .new-record-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 3px;
+            background: linear-gradient(135deg, #FF6B35, #FF8F65);
+            color: #fff;
+            font-size: 11px;
+            padding: 3px 12px;
+            border-radius: 16px;
+            margin-top: 4px;
+            position: relative;
+            animation: recordPulse 2s ease-in-out infinite;
+        }
+
+        @keyframes recordPulse {
+            0%, 100% { box-shadow: 0 2px 10px rgba(255, 107, 53, 0.3); }
+            50% { box-shadow: 0 4px 25px rgba(255, 107, 53, 0.5); }
+        }
+
+        .new-record-badge .sparkle-icon {
+            animation: sparkleRotate 1.5s ease-in-out infinite;
+            display: inline-block;
+        }
+
+        @keyframes sparkleRotate {
+            0%, 100% { transform: scale(1) rotate(0deg); }
+            50% { transform: scale(1.3) rotate(15deg); }
+        }
+
+        .prev-best {
+            font-size: 10px;
+            color: #bbb;
+            font-family: 'PingFang SC', sans-serif;
+            margin-top: 3px;
+        }
+
+        /* Stats section */
+        .stats-row {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            padding: 8px 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            min-width: 140px;
+        }
+
+        .stat-icon {
+            font-size: 16px;
+        }
+
+        .stat-value {
+            font-size: 16px;
+            color: #333;
+            line-height: 1.2;
+        }
+
+        .stat-label {
+            font-size: 10px;
+            color: #999;
+            font-family: 'PingFang SC', sans-serif;
+        }
+
+        /* Right column: top sliced + actions */
+        .result-right {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            min-width: 0;
+        }
+
+        /* Top sliced items */
+        .top-sliced-section {
+            width: 100%;
+        }
+
+        .top-sliced-title {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 6px;
+            text-align: center;
+        }
+
+        .top-sliced-list {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+        }
+
+        .sliced-item {
+            flex: 1;
+            max-width: 160px;
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            padding: 8px 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+        }
+
+        .sliced-item.rank-1 { border-top: 3px solid #FFD700; }
+        .sliced-item.rank-2 { border-top: 3px solid #C0C0C0; }
+        .sliced-item.rank-3 { border-top: 3px solid #CD7F32; }
+
+        .sliced-rank {
+            font-size: 16px;
+            line-height: 1;
+        }
+
+        .sliced-word {
+            font-size: 14px;
+            color: #333;
+        }
+
+        .sliced-count {
+            font-size: 10px;
+            color: #999;
+            font-family: 'PingFang SC', sans-serif;
+        }
+
+        /* Action buttons - horizontal layout */
+        .result-actions {
+            width: 100%;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            gap: 10px;
+            margin-top: auto;
+        }
+
+        .btn-play-again {
+            height: 40px;
+            flex: 1;
+            border: none;
+            background: linear-gradient(135deg, #FF6B35, #FF8F65);
+            border-radius: 20px;
+            font-size: 14px;
+            color: #fff;
+            cursor: pointer;
+            font-family: 'ZCOOL KuaiLe', sans-serif;
+            box-shadow: 0 4px 14px rgba(255, 107, 53, 0.35);
+            letter-spacing: 2px;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .btn-play-again:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(255, 107, 53, 0.45);
+        }
+
+        .btn-switch-theme {
+            height: 40px;
+            flex: 1;
+            border: 2px solid #FF6B35;
+            background: transparent;
+            border-radius: 20px;
+            font-size: 13px;
+            color: #FF6B35;
+            cursor: pointer;
+            font-family: 'ZCOOL KuaiLe', sans-serif;
+            letter-spacing: 1px;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .btn-switch-theme:hover {
+            background: rgba(255, 107, 53, 0.05);
+        }
+
+        .btn-home-link {
+            font-size: 11px;
+            color: #bbb;
+            cursor: pointer;
+            font-family: 'PingFang SC', sans-serif;
+            background: none;
+            border: none;
+            padding: 4px 6px;
+            transition: color 0.2s;
+            white-space: nowrap;
+        }
+
+        .btn-home-link:hover {
+            color: #999;
+        }
+
+        /* ================================================================
+           SCREEN 2: Settings Page (Landscape Layout)
+           ================================================================ */
+        .settings-screen {
+            display: flex;
+            flex-direction: row;
+            position: relative;
+            width: 100%;
+            height: 100%;
+            background: #F7F8FA;
+        }
+
+        /* Settings nav bar - landscape: vertical sidebar style */
+        .settings-nav {
+            position: relative;
+            z-index: 10;
+            width: 160px;
+            min-width: 160px;
+            background: #fff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 54px 12px 20px;
+            border-right: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .settings-back {
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            border-radius: 50%;
+            transition: background 0.2s;
+            margin-bottom: 12px;
+        }
+
+        .settings-back:hover {
+            background: rgba(0, 0, 0, 0.04);
+        }
+
+        .settings-nav-title {
+            font-size: 17px;
+            color: #333;
+            writing-mode: horizontal-tb;
+        }
+
+        /* Settings body */
+        .settings-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px 20px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Settings section */
+        .settings-section {
+            background: #fff;
+            border-radius: 12px;
+            margin-bottom: 10px;
+            overflow: hidden;
+        }
+
+        .settings-section-title {
+            font-size: 11px;
+            color: #999;
+            font-family: 'PingFang SC', sans-serif;
+            padding: 0 4px;
+            margin-bottom: 6px;
+            letter-spacing: 1px;
+        }
+
+        /* Settings row */
+        .settings-row {
+            display: flex;
+            align-items: center;
+            padding: 10px 14px;
+            position: relative;
+        }
+
+        .settings-row:not(:last-child) {
+            border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+        }
+
+        .settings-row-icon {
+            width: 28px;
+            height: 28px;
+            border-radius: 7px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 10px;
+            font-size: 14px;
+        }
+
+        .settings-row-icon.icon-sound {
+            background: rgba(255, 107, 53, 0.1);
+        }
+
+        .settings-row-icon.icon-vibrate {
+            background: rgba(186, 225, 255, 0.4);
+        }
+
+        .settings-row-icon.icon-mode {
+            background: rgba(186, 255, 201, 0.4);
+        }
+
+        .settings-row-icon.icon-theme {
+            background: rgba(212, 186, 255, 0.4);
+        }
+
+        .settings-row-icon.icon-about {
+            background: rgba(255, 211, 186, 0.4);
+        }
+
+        .settings-row-icon.icon-version {
+            background: rgba(255, 255, 186, 0.5);
+        }
+
+        .settings-row-label {
+            flex: 1;
+            font-size: 14px;
+            color: #333;
+        }
+
+        .settings-row-value {
+            font-size: 12px;
+            color: #bbb;
+            font-family: 'PingFang SC', sans-serif;
+            margin-right: 6px;
+        }
+
+        .settings-row-arrow {
+            color: #ccc;
+            font-size: 14px;
+        }
+
+        /* Toggle switch */
+        .toggle-switch {
+            width: 44px;
+            height: 26px;
+            border-radius: 13px;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .toggle-switch.on {
+            background: linear-gradient(135deg, #FF6B35, #FF8F65);
+            box-shadow: 0 2px 8px rgba(255, 107, 53, 0.3);
+        }
+
+        .toggle-switch.off {
+            background: #E0E0E0;
+        }
+
+        .toggle-switch .toggle-knob {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: #fff;
+            position: absolute;
+            top: 2px;
+            transition: all 0.3s ease;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
+        }
+
+        .toggle-switch.on .toggle-knob {
+            left: 20px;
+        }
+
+        .toggle-switch.off .toggle-knob {
+            left: 2px;
+        }
+
+        /* Settings footer */
+        .settings-footer {
+            text-align: center;
+            padding: 10px 16px 20px;
+            margin-top: auto;
+        }
+
+        .settings-footer-logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            margin-bottom: 4px;
+        }
+
+        .settings-footer-icon {
+            width: 24px;
+            height: 24px;
+            background: linear-gradient(135deg, #FF6B35, #FF8F65);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .settings-footer-icon svg {
+            width: 14px;
+            height: 14px;
+        }
+
+        .settings-footer-text {
+            font-size: 12px;
+            color: #999;
+            font-family: 'PingFang SC', sans-serif;
+        }
+
+        .settings-footer-copyright {
+            font-size: 10px;
+            color: #ccc;
+            font-family: 'PingFang SC', sans-serif;
+            margin-top: 2px;
+        }
+
+        /* ========== Responsive scaling for smaller screens ========== */
+        @media (max-width: 860px) {
+            .phone-frame {
+                transform: scale(0.55);
+                transform-origin: top center;
+            }
+        }
+
+        @media (max-width: 500px) {
+            .phone-frame {
+                transform: scale(0.38);
+                transform-origin: top center;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Page Header -->
+    <div class="page-header">
+        <h1><span>05</span> - 结果与设置</h1>
+        <p>切你所想 | WeChat Mini-Game Prototype | Game Result & Settings</p>
+    </div>
+
+    <!-- Phone Grid -->
+    <div class="phone-grid">
+
+        <!-- ==================== Screen 1: Game Result ==================== -->
+        <div class="screen-item">
+            <div class="screen-label"><span class="label-num">01</span> 结果页 / Game Result</div>
+            <div class="phone-frame">
+                <div class="phone-screen">
+                    <div class="notch"></div>
+                    <div class="status-bar">
+                        <span class="time">9:41</span>
+                        <span class="icons">
+                            <svg width="16" height="12" viewBox="0 0 16 12" fill="currentColor"><rect x="0" y="6" width="3" height="6" rx="0.5"/><rect x="4.5" y="4" width="3" height="8" rx="0.5"/><rect x="9" y="2" width="3" height="10" rx="0.5"/><rect x="13.5" y="0" width="3" height="12" rx="0.5" opacity="0.3"/></svg>
+                            <svg width="16" height="12" viewBox="0 0 16 12" fill="currentColor"><path d="M8 2C5.5 2 3.2 3 1.5 4.7L0 3.2C2.1 1.2 4.9 0 8 0s5.9 1.2 8 3.2l-1.5 1.5C12.8 3 10.5 2 8 2zm0 4c-1.4 0-2.7.6-3.6 1.5L3 6.1C4.3 4.8 6.1 4 8 4s3.7.8 5 2.1l-1.4 1.4C10.7 6.6 9.4 6 8 6zm0 4c-.8 0-1.5.3-2 .8L8 13l2-2.2c-.5-.5-1.2-.8-2-.8z"/></svg>
+                            <svg width="25" height="12" viewBox="0 0 25 12" fill="currentColor"><rect x="0" y="1" width="21" height="10" rx="2" stroke="currentColor" stroke-width="1" fill="none"/><rect x="22" y="4" width="2" height="4" rx="1"/><rect x="1.5" y="2.5" width="14" height="7" rx="1" fill="#4CD964"/></svg>
+                        </span>
+                    </div>
+
+                    <div class="result-screen">
+                        <!-- Background -->
+                        <div class="result-bg"></div>
+
+                        <!-- Confetti particles -->
+                        <div class="confetti-container">
+                            <div class="confetti c1"></div>
+                            <div class="confetti c2"></div>
+                            <div class="confetti c3"></div>
+                            <div class="confetti c4"></div>
+                            <div class="confetti c5"></div>
+                            <div class="confetti c6"></div>
+                            <div class="confetti c7"></div>
+                            <div class="confetti c8"></div>
+                            <div class="confetti c9"></div>
+                            <div class="confetti c10"></div>
+                            <div class="confetti c11"></div>
+                            <div class="confetti c12"></div>
+                            <div class="confetti c13"></div>
+                            <div class="confetti c14"></div>
+                            <div class="confetti c15"></div>
+                        </div>
+
+                        <!-- Content -->
+                        <div class="result-content">
+                            <!-- Left column: theme info + score -->
+                            <div class="result-left">
+                                <div class="score-section">
+                                    <!-- Theme info above score -->
+                                    <div class="result-theme">
+                                        <div class="result-theme-icon">&#128188;</div>
+                                        <div class="result-theme-name">打工人发泄包</div>
+                                    </div>
+                                    <div class="result-duration">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <circle cx="12" cy="12" r="10"/>
+                                            <polyline points="12 6 12 12 16 14"/>
+                                        </svg>
+                                        渐入佳境 120秒
+                                    </div>
+
+                                    <div class="score-label">本局得分</div>
+                                    <div class="score-number" id="scoreDisplay">0</div>
+                                    <div class="new-record-badge">
+                                        <span class="sparkle-icon">&#10024;</span>
+                                        新纪录！
+                                        <span class="sparkle-icon">&#10024;</span>
+                                    </div>
+                                    <div class="prev-best">历史最高：280分</div>
+                                </div>
+
+                                <!-- Stats beside score -->
+                                <div class="stats-row">
+                                    <div class="stat-card">
+                                        <div class="stat-icon">&#9986;&#65039;</div>
+                                        <div>
+                                            <div class="stat-value">42次</div>
+                                            <div class="stat-label">切割总数</div>
+                                        </div>
+                                    </div>
+                                    <div class="stat-card">
+                                        <div class="stat-icon">&#128293;</div>
+                                        <div>
+                                            <div class="stat-value">x8</div>
+                                            <div class="stat-label">最高连击</div>
+                                        </div>
+                                    </div>
+                                    <div class="stat-card">
+                                        <div class="stat-icon">&#127919;</div>
+                                        <div>
+                                            <div class="stat-value">78%</div>
+                                            <div class="stat-label">命中率</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Right column: top sliced + actions -->
+                            <div class="result-right">
+                                <!-- Top sliced items -->
+                                <div class="top-sliced-section">
+                                    <div class="top-sliced-title">你最想切掉的</div>
+                                    <div class="top-sliced-list">
+                                        <div class="sliced-item rank-1">
+                                            <div class="sliced-rank">&#129351;</div>
+                                            <div class="sliced-word">加班</div>
+                                            <div class="sliced-count">被切了12次</div>
+                                        </div>
+                                        <div class="sliced-item rank-2">
+                                            <div class="sliced-rank">&#129352;</div>
+                                            <div class="sliced-word">开会</div>
+                                            <div class="sliced-count">被切了8次</div>
+                                        </div>
+                                        <div class="sliced-item rank-3">
+                                            <div class="sliced-rank">&#129353;</div>
+                                            <div class="sliced-word">周一</div>
+                                            <div class="sliced-count">被切了6次</div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Action buttons -->
+                                <div class="result-actions">
+                                    <button class="btn-play-again">再来一局</button>
+                                    <button class="btn-switch-theme">换主题玩</button>
+                                    <button class="btn-home-link">返回首页</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="home-indicator"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== Screen 2: Settings ==================== -->
+        <div class="screen-item">
+            <div class="screen-label"><span class="label-num">02</span> 设置页 / Settings</div>
+            <div class="phone-frame">
+                <div class="phone-screen">
+                    <div class="notch"></div>
+                    <div class="status-bar">
+                        <span class="time">9:41</span>
+                        <span class="icons">
+                            <svg width="16" height="12" viewBox="0 0 16 12" fill="currentColor"><rect x="0" y="6" width="3" height="6" rx="0.5"/><rect x="4.5" y="4" width="3" height="8" rx="0.5"/><rect x="9" y="2" width="3" height="10" rx="0.5"/><rect x="13.5" y="0" width="3" height="12" rx="0.5" opacity="0.3"/></svg>
+                            <svg width="16" height="12" viewBox="0 0 16 12" fill="currentColor"><path d="M8 2C5.5 2 3.2 3 1.5 4.7L0 3.2C2.1 1.2 4.9 0 8 0s5.9 1.2 8 3.2l-1.5 1.5C12.8 3 10.5 2 8 2zm0 4c-1.4 0-2.7.6-3.6 1.5L3 6.1C4.3 4.8 6.1 4 8 4s3.7.8 5 2.1l-1.4 1.4C10.7 6.6 9.4 6 8 6zm0 4c-.8 0-1.5.3-2 .8L8 13l2-2.2c-.5-.5-1.2-.8-2-.8z"/></svg>
+                            <svg width="25" height="12" viewBox="0 0 25 12" fill="currentColor"><rect x="0" y="1" width="21" height="10" rx="2" stroke="currentColor" stroke-width="1" fill="none"/><rect x="22" y="4" width="2" height="4" rx="1"/><rect x="1.5" y="2.5" width="14" height="7" rx="1" fill="#4CD964"/></svg>
+                        </span>
+                    </div>
+
+                    <div class="settings-screen">
+                        <!-- Nav bar - landscape sidebar -->
+                        <div class="settings-nav">
+                            <div class="settings-back">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#333" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                    <polyline points="15 18 9 12 15 6"/>
+                                </svg>
+                            </div>
+                            <div class="settings-nav-title">设置</div>
+                        </div>
+
+                        <!-- Body -->
+                        <div class="settings-body">
+                            <!-- Section 1: Sound & Feedback -->
+                            <div class="settings-section-title">音效与反馈</div>
+                            <div class="settings-section">
+                                <div class="settings-row">
+                                    <div class="settings-row-icon icon-sound">&#128266;</div>
+                                    <div class="settings-row-label">音效</div>
+                                    <div class="toggle-switch on" onclick="toggleSwitch(this)">
+                                        <div class="toggle-knob"></div>
+                                    </div>
+                                </div>
+                                <div class="settings-row">
+                                    <div class="settings-row-icon icon-vibrate">&#128230;</div>
+                                    <div class="settings-row-label">震动反馈</div>
+                                    <div class="toggle-switch off" onclick="toggleSwitch(this)">
+                                        <div class="toggle-knob"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Section 2: About -->
+                            <div class="settings-section-title">关于</div>
+                            <div class="settings-section">
+                                <div class="settings-row" style="cursor:pointer;">
+                                    <div class="settings-row-icon icon-about">&#128142;</div>
+                                    <div class="settings-row-label">关于切你所想</div>
+                                    <div class="settings-row-arrow">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                            <polyline points="9 18 15 12 9 6"/>
+                                        </svg>
+                                    </div>
+                                </div>
+                                <div class="settings-row">
+                                    <div class="settings-row-icon icon-version">&#128196;</div>
+                                    <div class="settings-row-label">版本</div>
+                                    <div class="settings-row-value">V1.0.0</div>
+                                </div>
+                            </div>
+
+                            <!-- Footer -->
+                            <div class="settings-footer">
+                                <div class="settings-footer-logo">
+                                    <div class="settings-footer-icon">
+                                        <svg viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M12 8 L38 32 L34 36 L8 12 Z" fill="#fff" opacity="0.95"/>
+                                            <path d="M8 12 L12 8 L14 10 L10 14 Z" fill="#fff" opacity="0.7"/>
+                                            <path d="M20 20 Q28 16 36 24" stroke="#fff" stroke-width="2" stroke-linecap="round" opacity="0.6"/>
+                                            <circle cx="42" cy="14" r="2" fill="#fff" opacity="0.8"/>
+                                        </svg>
+                                    </div>
+                                    <span class="settings-footer-text">切你所想 - 切掉你的烦恼 &#10024;</span>
+                                </div>
+                                <div class="settings-footer-copyright">&copy; 2026 Slice It Studio</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="home-indicator"></div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // Score count-up animation
+        document.addEventListener('DOMContentLoaded', function() {
+            const scoreEl = document.getElementById('scoreDisplay');
+            if (scoreEl) {
+                const target = 380;
+                const duration = 1500;
+                const startTime = performance.now();
+
+                function animateScore(currentTime) {
+                    const elapsed = currentTime - startTime;
+                    const progress = Math.min(elapsed / duration, 1);
+
+                    // Ease-out cubic
+                    const eased = 1 - Math.pow(1 - progress, 3);
+                    const current = Math.round(eased * target);
+
+                    scoreEl.textContent = current;
+
+                    if (progress < 1) {
+                        requestAnimationFrame(animateScore);
+                    }
+                }
+
+                // Start animation after a short delay
+                setTimeout(function() {
+                    requestAnimationFrame(animateScore);
+                }, 500);
+            }
+        });
+
+        // Toggle switch interaction
+        function toggleSwitch(el) {
+            if (el.classList.contains('on')) {
+                el.classList.remove('on');
+                el.classList.add('off');
+            } else {
+                el.classList.remove('off');
+                el.classList.add('on');
+            }
+        }
+    </script>
+
+</body>
+</html>

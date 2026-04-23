@@ -1,0 +1,31 @@
+{
+  "name": "slice-it-server",
+  "version": "1.0.0",
+  "description": "微信小游戏《切你所想》后端服务",
+  "main": "dist/app.js",
+  "scripts": {
+    "dev": "tsx src/app.ts",
+    "build": "tsc",
+    "start": "node dist/app.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "axios": "^1.6.0",
+    "prisma": "^5.5.0",
+    "jsonwebtoken": "^9.0.2"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.21",
+    "@types/jsonwebtoken": "^9.0.5",
+    "@types/node": "^20.10.0",
+    "tsx": "^4.6.0",
+    "typescript": "^5.3.0"
+  },
+  "keywords": [
+    "node.js",
+    "express",
+    "wechat-api"
+  ],
+  "author": "",
+  "license": "MIT"
+}
