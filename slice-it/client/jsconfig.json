@@ -3,7 +3,6 @@
     "target": "ES2018",
     "module": "ESNext",
     "lib": ["ES2018", "DOM"],
-    "jsx": "react",
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
@@ -13,12 +12,9 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,
-    "jsxFactory": "cc._decorator.jsxFactory",
-    "jsxFragmentFactory": "cc._decorator.jsxFragmentFactory",
     "baseUrl": ".",
     "paths": {
-      "*": ["node_modules/*"],
-      "cc": ["node_modules/cocos-creator/declarations"]
+      "*": ["node_modules/*"]
     },
     "types": ["cocos"]
   },
