@@ -1,4 +1,4 @@
-import { GameConfig } from './GameConfig';
+import { GameConfig, DEFAULT_GAME_CONFIG } from './GameConfig';
 
 export enum GameStatus {
   IDLE = 'idle',
@@ -57,7 +57,7 @@ export class GameStateManager {
       combo: 0,
       timeLeft: 0,
       targets: [],
-      config: JSON.parse(JSON.stringify(require('./GameConfig').DEFAULT_GAME_CONFIG)),
+      config: JSON.parse(JSON.stringify(DEFAULT_GAME_CONFIG)),
       lastSliceTime: 0,
       frenzyTime: 5,
       highestScore: this.getHighestScore()
