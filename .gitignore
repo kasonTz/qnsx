@@ -2,6 +2,11 @@ node_modules/
 dist/
 build/
 build-*/
+build-templates/
+builtin/
+library/
+local/
+temp/
 *.log
 .env
 .DS_Store
@@ -12,4 +17,5 @@ build-*/
 .settings
 .vscode/
 .idea/
+
 
